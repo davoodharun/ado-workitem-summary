@@ -469,11 +469,30 @@ function Get-LinkedItems {
                 # Convert vstfs:// URL to browser-friendly URL and get details
                 $result = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -DefaultProjectName $ProjectName
                 
-                $linkedItems += @{
-                    url = $result.url
-                    type = $result.type
-                    title = $relation.attributes.name
-                    details = $result.details
+                # For pull requests, check if the target branch is one of the specified branches
+                $includeItem = $true
+                if ($result.type -eq "Pull Request" -and $result.details) {
+                    $targetBranch = $result.details.targetRefName
+                    $includeItem = $false
+                    
+                    # Check if the target branch is one of the specified branches
+                    if ($targetBranch -match 'refs/heads/ucdprod' -or 
+                        $targetBranch -match 'refs/heads/ucd/prod' -or 
+                        $targetBranch -match 'refs/heads/ucdweb/prod' -or 
+                        $targetBranch -match 'refs/heads/master' -or 
+                        $targetBranch -match 'refs/heads/main') {
+                        $includeItem = $true
+                    }
+                }
+                
+                # Only include the item if it passes the filter
+                if ($includeItem) {
+                    $linkedItems += @{
+                        url = $result.url
+                        type = $result.type
+                        title = $relation.attributes.name
+                        details = $result.details
+                    }
                 }
             }
         }
