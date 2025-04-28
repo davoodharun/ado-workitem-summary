@@ -95,8 +95,17 @@ function Convert-ToBrowserUrl {
         # Get pull request details
         $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
         
+        # Use project name and repository ID from the pull request details if available
+        $projectName = $DefaultProjectName
+        $repoId = $repositoryId
+        
+        if ($pullRequestDetails -and $pullRequestDetails.repository) {
+            $projectName = $pullRequestDetails.repository.project.name
+            $repoId = $pullRequestDetails.repository.id
+        }
+        
         # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repoId/pullRequests/$pullRequestId"
         
         # Create a result object with URL and details
         $result = @{
@@ -129,8 +138,17 @@ function Convert-ToBrowserUrl {
         # Get pull request details
         $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
         
+        # Use project name and repository ID from the pull request details if available
+        $projectName = $DefaultProjectName
+        $repoId = $repositoryId
+        
+        if ($pullRequestDetails -and $pullRequestDetails.repository) {
+            $projectName = $pullRequestDetails.repository.project.name
+            $repoId = $pullRequestDetails.repository.id
+        }
+        
         # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repoId/pullRequests/$pullRequestId"
         
         # Create a result object with URL and details
         $result = @{
@@ -164,8 +182,17 @@ function Convert-ToBrowserUrl {
         # Get pull request details
         $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
         
+        # Use project name and repository ID from the pull request details if available
+        $projectName = $DefaultProjectName
+        $repoId = $repositoryId
+        
+        if ($pullRequestDetails -and $pullRequestDetails.repository) {
+            $projectName = $pullRequestDetails.repository.project.name
+            $repoId = $pullRequestDetails.repository.id
+        }
+        
         # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repoId/pullRequests/$pullRequestId"
         
         # Create a result object with URL and details
         $result = @{
@@ -200,8 +227,17 @@ function Convert-ToBrowserUrl {
         # Get pull request details
         $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
         
+        # Use project name and repository ID from the pull request details if available
+        $projectName = $DefaultProjectName
+        $repoId = $repositoryId
+        
+        if ($pullRequestDetails -and $pullRequestDetails.repository) {
+            $projectName = $pullRequestDetails.repository.project.name
+            $repoId = $pullRequestDetails.repository.id
+        }
+        
         # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repoId/pullRequests/$pullRequestId"
         
         # Create a result object with URL and details
         $result = @{
@@ -244,8 +280,17 @@ function Convert-ToBrowserUrl {
         # Get pull request details
         $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
         
+        # Use project name and repository ID from the pull request details if available
+        $projectName = $DefaultProjectName
+        $repoId = $repositoryId
+        
+        if ($pullRequestDetails -and $pullRequestDetails.repository) {
+            $projectName = $pullRequestDetails.repository.project.name
+            $repoId = $pullRequestDetails.repository.id
+        }
+        
         # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repoId/pullRequests/$pullRequestId"
         
         # Create a result object with URL and details
         $result = @{
