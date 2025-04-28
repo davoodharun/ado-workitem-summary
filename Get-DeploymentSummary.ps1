@@ -498,9 +498,15 @@ try {
     Write-Host "`nBuilds:"
     $tables['Builds'] | Format-Table -AutoSize
     
-    # Also output the summary as JSON for reference
-    Write-Host "`nJSON Summary:"
-    $summary | ConvertTo-Json -Depth 10
+    # Save the summary as JSON for the web app
+    $jsonOutput = @{
+        'Pull Requests' = $tables['Pull Requests']
+        'Builds' = $tables['Builds']
+        'Work Items' = $summary.work_items
+    }
+    
+    $jsonOutput | ConvertTo-Json -Depth 10 | Out-File -FilePath "deployment-summary.json" -Encoding UTF8
+    Write-Host "`nJSON summary saved to deployment-summary.json"
 }
 catch {
     Write-Error "An error occurred: $_"

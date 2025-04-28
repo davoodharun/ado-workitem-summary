@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Summary</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Vue.js CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <header>
+                <h1>Deployment Summary</h1>
+                <div class="tabs">
+                    <button 
+                        v-for="tab in tabs" 
+                        :key="tab.id"
+                        :class="['tab-button', { active: activeTab === tab.id }]"
+                        @click="activeTab = tab.id">
+                        {{ tab.name }}
+                    </button>
+                </div>
+            </header>
+
+            <main>
+                <!-- Pull Requests Tab -->
+                <div v-if="activeTab === 'pull-requests'" class="tab-content active">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pull Request ID</th>
+                                    <th>Title</th>
+                                    <th>Target Branch</th>
+                                    <th>Source Branch</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Creation Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="pr in pullRequests" :key="pr['Pull Request ID']" @click="showDetails('pull-request', pr)">
+                                    <td>{{ pr['Pull Request ID'] }}</td>
+                                    <td>{{ pr['Title'] }}</td>
+                                    <td>{{ pr['Target Branch'] }}</td>
+                                    <td>{{ pr['Source Branch'] }}</td>
+                                    <td>{{ pr['Status'] }}</td>
+                                    <td>{{ pr['Created By'] }}</td>
+                                    <td>{{ pr['Creation Date'] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Builds Tab -->
+                <div v-if="activeTab === 'builds'" class="tab-content active">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Build ID</th>
+                                    <th>Build Number</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Result</th>
+                                    <th>Requested By</th>
+                                    <th>Start Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="build in builds" :key="build['Build ID']" @click="showDetails('build', build)">
+                                    <td>{{ build['Build ID'] }}</td>
+                                    <td>{{ build['Build Number'] }}</td>
+                                    <td>{{ build['Title'] }}</td>
+                                    <td>{{ build['Status'] }}</td>
+                                    <td>{{ build['Result'] }}</td>
+                                    <td>{{ build['Requested By'] }}</td>
+                                    <td>{{ build['Start Time'] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Work Items Tab -->
+                <div v-if="activeTab === 'work-items'" class="tab-content active">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Work Item ID</th>
+                                    <th>Title</th>
+                                    <th>State</th>
+                                    <th>Linked Items</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="workItem in workItems" :key="workItem.id" @click="showWorkItemDetails(workItem)">
+                                    <td>{{ workItem.id }}</td>
+                                    <td>{{ workItem.title }}</td>
+                                    <td>{{ workItem.state }}</td>
+                                    <td>{{ workItem.linked_items.length }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Details Modal -->
+            <div v-if="showModal" class="modal" @click="closeModal">
+                <div class="modal-content" @click.stop>
+                    <span class="close" @click="closeModal">&times;</span>
+                    <div v-if="selectedItem">
+                        <!-- Pull Request Details -->
+                        <div v-if="selectedItemType === 'pull-request'" class="details-section">
+                            <h3>Pull Request Details</h3>
+                            <div class="details-grid">
+                                <div class="details-item">
+                                    <strong>Pull Request ID</strong>
+                                    {{ selectedItem['Pull Request ID'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Title</strong>
+                                    {{ selectedItem['Title'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Target Branch</strong>
+                                    {{ selectedItem['Target Branch'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Source Branch</strong>
+                                    {{ selectedItem['Source Branch'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Status</strong>
+                                    {{ selectedItem['Status'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Created By</strong>
+                                    {{ selectedItem['Created By'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Creation Date</strong>
+                                    {{ selectedItem['Creation Date'] }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Build Details -->
+                        <div v-if="selectedItemType === 'build'" class="details-section">
+                            <h3>Build Details</h3>
+                            <div class="details-grid">
+                                <div class="details-item">
+                                    <strong>Build ID</strong>
+                                    {{ selectedItem['Build ID'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Build Number</strong>
+                                    {{ selectedItem['Build Number'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Title</strong>
+                                    {{ selectedItem['Title'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Status</strong>
+                                    {{ selectedItem['Status'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Result</strong>
+                                    {{ selectedItem['Result'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Requested By</strong>
+                                    {{ selectedItem['Requested By'] }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Start Time</strong>
+                                    {{ selectedItem['Start Time'] }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Work Item Details -->
+                        <div v-if="selectedItemType === 'work-item'" class="details-section">
+                            <h3>Work Item Details</h3>
+                            <div class="details-grid">
+                                <div class="details-item">
+                                    <strong>Work Item ID</strong>
+                                    {{ selectedItem.id }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>Title</strong>
+                                    {{ selectedItem.title }}
+                                </div>
+                                <div class="details-item">
+                                    <strong>State</strong>
+                                    {{ selectedItem.state }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Linked Items Section -->
+                        <div v-if="selectedItem['Linked Work Items'] || (selectedItemType === 'work-item' && selectedItem.linked_items.length > 0)" class="details-section linked-items">
+                            <h3>Linked Items</h3>
+                            <ul v-if="selectedItem['Linked Work Items']">
+                                <li v-for="(workItem, index) in selectedItem['Linked Work Items'].split('; ')" :key="index">
+                                    {{ workItem }}
+                                </li>
+                            </ul>
+                            <ul v-else-if="selectedItemType === 'work-item'">
+                                <li v-for="linkedItem in selectedItem.linked_items" :key="linkedItem.url">
+                                    <strong>{{ linkedItem.type }}:</strong> {{ linkedItem.title }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
