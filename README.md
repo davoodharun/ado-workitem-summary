@@ -18,10 +18,11 @@ Run the script with the required parameters:
 
 Optional parameters:
 - `-ProjectName`: The name of the Azure DevOps project (default: "EU-Change Governance")
+- `-Debug`: Switch to enable debug output, showing URL conversion details
 
 Example with all parameters:
 ```powershell
-.\Get-DeploymentSummary.ps1 -OrganizationUrl "https://dev.azure.com/your-organization" -PersonalAccessToken "your-personal-access-token" -ProjectName "EU-Change Governance"
+.\Get-DeploymentSummary.ps1 -OrganizationUrl "https://dev.azure.com/your-organization" -PersonalAccessToken "your-personal-access-token" -ProjectName "EU-Change Governance" -Debug
 ```
 
 ## What the Script Does
@@ -49,6 +50,7 @@ The script outputs a JSON summary containing:
   - ucdweb/stage to ucdweb/prod
 - Build pipeline references are also included in the summary
 - All URLs in the output are converted to browser-friendly format that can be opened directly in a web browser
+- If you're still seeing vstfs:// URLs in the output, run the script with the -Debug parameter to see detailed URL conversion information
 
 ## Security Considerations
 

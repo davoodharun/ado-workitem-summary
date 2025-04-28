@@ -10,7 +10,10 @@ param (
     [string]$PersonalAccessToken,
     
     [Parameter(Mandatory=$false)]
-    [string]$ProjectName = "EU-Change Governance"
+    [string]$ProjectName = "EU-Change Governance",
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Debug
 )
 
 # Function to convert vstfs:// URLs to browser-friendly URLs
@@ -21,22 +24,73 @@ function Convert-ToBrowserUrl {
         [string]$ProjectName
     )
     
+    if ($Debug) {
+        Write-Host "Converting URL: $VstfsUrl"
+    }
+    
     # Extract repository and pull request IDs from vstfs:// URL
     if ($VstfsUrl -match 'vstfs:///Git/PullRequestId/(\d+)/(\d+)') {
         $repositoryId = $matches[1]
         $pullRequestId = $matches[2]
         
         # Construct browser-friendly URL
-        return "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        if ($Debug) {
+            Write-Host "Converted to: $browserUrl"
+        }
+        return $browserUrl
     }
     elseif ($VstfsUrl -match 'vstfs:///Build/Build/(\d+)') {
         $buildId = $matches[1]
         
         # Construct browser-friendly URL for build
-        return "$OrganizationUrl/$ProjectName/_build/results?buildId=$buildId"
+        $browserUrl = "$OrganizationUrl/$ProjectName/_build/results?buildId=$buildId"
+        if ($Debug) {
+            Write-Host "Converted to: $browserUrl"
+        }
+        return $browserUrl
+    }
+    elseif ($VstfsUrl -match 'vstfs:///Git/Ref/(\d+)/(\w+)') {
+        $repositoryId = $matches[1]
+        $refName = $matches[2]
+        
+        # Construct browser-friendly URL for branch reference
+        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
+        if ($Debug) {
+            Write-Host "Converted to: $browserUrl"
+        }
+        return $browserUrl
+    }
+    elseif ($VstfsUrl -match 'vstfs:///Git/Commit/(\d+)/(\w+)') {
+        $repositoryId = $matches[1]
+        $commitId = $matches[2]
+        
+        # Construct browser-friendly URL for commit
+        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
+        if ($Debug) {
+            Write-Host "Converted to: $browserUrl"
+        }
+        return $browserUrl
     }
     else {
+        # Try to extract any IDs from the URL that might be useful
+        if ($VstfsUrl -match 'vstfs:///(\w+)/(\w+)/(\d+)') {
+            $serviceType = $matches[1]
+            $itemType = $matches[2]
+            $itemId = $matches[3]
+            
+            # Construct a generic browser-friendly URL
+            $browserUrl = "$OrganizationUrl/$ProjectName/_apis/$serviceType/$itemType/$itemId"
+            if ($Debug) {
+                Write-Host "Converted to generic URL: $browserUrl"
+            }
+            return $browserUrl
+        }
+        
         # Return original URL if it doesn't match expected patterns
+        if ($Debug) {
+            Write-Host "Could not convert URL, returning original"
+        }
         return $VstfsUrl
     }
 }
