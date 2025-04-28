@@ -16,11 +16,69 @@ param (
     [switch]$Debug
 )
 
-# Function to convert vstfs:// URLs to browser-friendly URLs
+# Function to get pull request details
+function Get-PullRequestDetails {
+    param (
+        [string]$OrganizationUrl,
+        [string]$PersonalAccessToken,
+        [string]$ProjectName,
+        [string]$RepositoryId,
+        [string]$PullRequestId
+    )
+    
+    $headers = @{
+        'Authorization' = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PersonalAccessToken")))"
+        'Content-Type' = 'application/json'
+    }
+    
+    $pullRequestUrl = "$OrganizationUrl/$ProjectName/_apis/git/repositories/$RepositoryId/pullRequests/$PullRequestId?api-version=6.0"
+    
+    try {
+        $pullRequest = Invoke-RestMethod -Uri $pullRequestUrl -Method Get -Headers $headers
+        return $pullRequest
+    }
+    catch {
+        if ($Debug) {
+            Write-Host "Error getting pull request details: $_"
+        }
+        return $null
+    }
+}
+
+# Function to get build details
+function Get-BuildDetails {
+    param (
+        [string]$OrganizationUrl,
+        [string]$PersonalAccessToken,
+        [string]$ProjectName,
+        [string]$BuildId
+    )
+    
+    $headers = @{
+        'Authorization' = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PersonalAccessToken")))"
+        'Content-Type' = 'application/json'
+    }
+    
+    $buildUrl = "$OrganizationUrl/$ProjectName/_apis/build/builds/$BuildId?api-version=6.0"
+    
+    try {
+        $build = Invoke-RestMethod -Uri $buildUrl -Method Get -Headers $headers
+        return $build
+    }
+    catch {
+        if ($Debug) {
+            Write-Host "Error getting build details: $_"
+        }
+        return $null
+    }
+}
+
+# Function to convert vstfs:// URLs to browser-friendly URLs and get additional details
 function Convert-ToBrowserUrl {
     param (
         [string]$VstfsUrl,
         [string]$OrganizationUrl,
+        [string]$PersonalAccessToken,
         [string]$DefaultProjectName
     )
     
@@ -33,22 +91,66 @@ function Convert-ToBrowserUrl {
         $repositoryId = $matches[1]
         $pullRequestId = $matches[2]
         
+        # Get pull request details
+        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
+        
         # Construct browser-friendly URL for pull request
         $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        
+        # Create a result object with URL and details
+        $result = @{
+            url = $browserUrl
+            type = "Pull Request"
+        }
+        
+        # Add pull request details if available
+        if ($pullRequestDetails) {
+            $result.details = @{
+                title = $pullRequestDetails.title
+                status = $pullRequestDetails.status
+                sourceRefName = $pullRequestDetails.sourceRefName
+                targetRefName = $pullRequestDetails.targetRefName
+                createdBy = $pullRequestDetails.createdBy.displayName
+                creationDate = $pullRequestDetails.creationDate
+            }
+        }
+        
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
-        return $browserUrl
+        return $result
     }
     elseif ($VstfsUrl -match 'vstfs:///Build/Build/(\d+)') {
         $buildId = $matches[1]
         
+        # Get build details
+        $buildDetails = Get-BuildDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -BuildId $buildId
+        
         # Construct browser-friendly URL for build
         $browserUrl = "$OrganizationUrl/$DefaultProjectName/_build/results?buildId=$buildId"
+        
+        # Create a result object with URL and details
+        $result = @{
+            url = $browserUrl
+            type = "Build"
+        }
+        
+        # Add build details if available
+        if ($buildDetails) {
+            $result.details = @{
+                buildNumber = $buildDetails.buildNumber
+                status = $buildDetails.status
+                result = $buildDetails.result
+                startTime = $buildDetails.startTime
+                finishTime = $buildDetails.finishTime
+                requestedBy = $buildDetails.requestedBy.displayName
+            }
+        }
+        
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
-        return $browserUrl
+        return $result
     }
     elseif ($VstfsUrl -match 'vstfs:///Git/Ref/(\d+)/(\w+)') {
         $repositoryId = $matches[1]
@@ -56,10 +158,17 @@ function Convert-ToBrowserUrl {
         
         # Construct browser-friendly URL for branch reference
         $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
+        
+        # Create a result object with URL
+        $result = @{
+            url = $browserUrl
+            type = "Branch Reference"
+        }
+        
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
-        return $browserUrl
+        return $result
     }
     elseif ($VstfsUrl -match 'vstfs:///Git/Commit/(\d+)/(\w+)') {
         $repositoryId = $matches[1]
@@ -67,17 +176,27 @@ function Convert-ToBrowserUrl {
         
         # Construct browser-friendly URL for commit
         $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
+        
+        # Create a result object with URL
+        $result = @{
+            url = $browserUrl
+            type = "Commit"
+        }
+        
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
-        return $browserUrl
+        return $result
     }
     else {
         # Return original URL if it doesn't match expected patterns
         if ($Debug) {
             Write-Host "Could not convert URL, returning original"
         }
-        return $VstfsUrl
+        return @{
+            url = $VstfsUrl
+            type = "Unknown"
+        }
     }
 }
 
@@ -152,13 +271,14 @@ function Get-LinkedItems {
                 $url -match 'ucdstage to ucdprod' -or 
                 $url -match 'ucdweb/stage to ucdweb/prod') {
                 
-                # Convert vstfs:// URL to browser-friendly URL
-                $browserUrl = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -DefaultProjectName $ProjectName
+                # Convert vstfs:// URL to browser-friendly URL and get details
+                $result = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -DefaultProjectName $ProjectName
                 
                 $linkedItems += @{
-                    url = $browserUrl
-                    type = $relation.rel
+                    url = $result.url
+                    type = $result.type
                     title = $relation.attributes.name
+                    details = $result.details
                 }
             }
         }
