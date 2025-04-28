@@ -31,8 +31,9 @@ The script will:
 1. Connect to Azure DevOps using your credentials
 2. Find all Change Request work items in "Ready for Implementation" state
 3. For each work item, collect linked Pull Requests and Build Pipeline references
-4. Convert the internal vstfs:// URLs to browser-friendly URLs that can be opened directly
-5. Generate a JSON summary of the findings
+4. Determine the correct project for each linked item (even if it's in a different project)
+5. Convert the internal vstfs:// URLs to browser-friendly URLs that can be opened directly
+6. Generate a JSON summary of the findings
 
 ## Output
 
@@ -50,6 +51,7 @@ The script outputs a JSON summary containing:
   - ucdweb/stage to ucdweb/prod
 - Build pipeline references are also included in the summary
 - All URLs in the output are converted to browser-friendly format that can be opened directly in a web browser
+- The script automatically detects the correct project for linked items, even if they're in a different project than the work items
 - If you're still seeing vstfs:// URLs in the output, run the script with the -Debug parameter to see detailed URL conversion information
 
 ## Security Considerations

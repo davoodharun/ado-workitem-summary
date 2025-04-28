@@ -16,16 +16,68 @@ param (
     [switch]$Debug
 )
 
+# Function to extract project information from vstfs URL
+function Get-ProjectFromVstfsUrl {
+    param (
+        [string]$VstfsUrl,
+        [string]$OrganizationUrl,
+        [string]$PersonalAccessToken
+    )
+    
+    # Extract collection and project IDs from vstfs:// URL
+    if ($VstfsUrl -match 'vstfs:///(\w+)/(\w+)/(\d+)/(\d+)') {
+        $collectionId = $matches[1]
+        $projectId = $matches[2]
+        
+        # Get project information from Azure DevOps API
+        $headers = @{
+            'Authorization' = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PersonalAccessToken")))"
+            'Content-Type' = 'application/json'
+        }
+        
+        try {
+            $projectUrl = "$OrganizationUrl/_apis/projects/$projectId?api-version=6.0"
+            $projectInfo = Invoke-RestMethod -Uri $projectUrl -Method Get -Headers $headers
+            return $projectInfo.name
+        }
+        catch {
+            if ($Debug) {
+                Write-Host "Could not get project information for ID $projectId: $_"
+            }
+            return $null
+        }
+    }
+    
+    return $null
+}
+
 # Function to convert vstfs:// URLs to browser-friendly URLs
 function Convert-ToBrowserUrl {
     param (
         [string]$VstfsUrl,
         [string]$OrganizationUrl,
-        [string]$ProjectName
+        [string]$PersonalAccessToken,
+        [string]$DefaultProjectName
     )
     
     if ($Debug) {
         Write-Host "Converting URL: $VstfsUrl"
+    }
+    
+    # Try to get the project name from the URL
+    $projectName = Get-ProjectFromVstfsUrl -VstfsUrl $VstfsUrl -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken
+    
+    # If we couldn't get the project name, use the default
+    if (-not $projectName) {
+        $projectName = $DefaultProjectName
+        if ($Debug) {
+            Write-Host "Using default project name: $projectName"
+        }
+    }
+    else {
+        if ($Debug) {
+            Write-Host "Found project name: $projectName"
+        }
     }
     
     # Extract repository and pull request IDs from vstfs:// URL
@@ -34,7 +86,7 @@ function Convert-ToBrowserUrl {
         $pullRequestId = $matches[2]
         
         # Construct browser-friendly URL
-        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
@@ -44,7 +96,7 @@ function Convert-ToBrowserUrl {
         $buildId = $matches[1]
         
         # Construct browser-friendly URL for build
-        $browserUrl = "$OrganizationUrl/$ProjectName/_build/results?buildId=$buildId"
+        $browserUrl = "$OrganizationUrl/$projectName/_build/results?buildId=$buildId"
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
@@ -55,7 +107,7 @@ function Convert-ToBrowserUrl {
         $refName = $matches[2]
         
         # Construct browser-friendly URL for branch reference
-        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
@@ -66,7 +118,7 @@ function Convert-ToBrowserUrl {
         $commitId = $matches[2]
         
         # Construct browser-friendly URL for commit
-        $browserUrl = "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
+        $browserUrl = "$OrganizationUrl/$projectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
         if ($Debug) {
             Write-Host "Converted to: $browserUrl"
         }
@@ -80,7 +132,7 @@ function Convert-ToBrowserUrl {
             $itemId = $matches[3]
             
             # Construct a generic browser-friendly URL
-            $browserUrl = "$OrganizationUrl/$ProjectName/_apis/$serviceType/$itemType/$itemId"
+            $browserUrl = "$OrganizationUrl/$projectName/_apis/$serviceType/$itemType/$itemId"
             if ($Debug) {
                 Write-Host "Converted to generic URL: $browserUrl"
             }
@@ -167,7 +219,7 @@ function Get-LinkedItems {
                 $url -match 'ucdweb/stage to ucdweb/prod') {
                 
                 # Convert vstfs:// URL to browser-friendly URL
-                $browserUrl = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -ProjectName $ProjectName
+                $browserUrl = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -DefaultProjectName $ProjectName
                 
                 $linkedItems += @{
                     url = $browserUrl
