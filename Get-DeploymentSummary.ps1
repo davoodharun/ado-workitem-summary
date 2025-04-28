@@ -373,7 +373,12 @@ function Format-SummaryAsTable {
     
     foreach ($workItem in $Summary.work_items) {
         $workItemId = $workItem.id
-        $workItemTitle = $workItem.title
+        # Truncate the title to 50 characters and add ellipsis if needed
+        $workItemTitle = if ($workItem.title.Length -gt 50) {
+            $workItem.title.Substring(0, 47) + "..."
+        } else {
+            $workItem.title
+        }
         $workItemState = $workItem.state
         
         if ($workItem.linked_items.Count -eq 0) {
@@ -395,7 +400,12 @@ function Format-SummaryAsTable {
             # Add a row for each linked item
             foreach ($linkedItem in $workItem.linked_items) {
                 $linkedItemType = $linkedItem.type
-                $linkedItemTitle = $linkedItem.title
+                # Truncate the linked item title to 40 characters and add ellipsis if needed
+                $linkedItemTitle = if ($linkedItem.title.Length -gt 40) {
+                    $linkedItem.title.Substring(0, 37) + "..."
+                } else {
+                    $linkedItem.title
+                }
                 $linkedItemUrl = $linkedItem.url
                 
                 # Extract details based on the linked item type
