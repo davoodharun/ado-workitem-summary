@@ -369,91 +369,134 @@ function Format-SummaryAsTable {
         [object]$Summary
     )
     
-    $tableData = @()
+    # Create dictionaries to store unique pull requests and builds
+    $uniquePullRequests = @{}
+    $uniqueBuilds = @{}
     
+    # Process all work items and their linked items
     foreach ($workItem in $Summary.work_items) {
         $workItemId = $workItem.id
-        # Truncate the title to 50 characters and add ellipsis if needed
-        $workItemTitle = if ($workItem.title.Length -gt 50) {
-            $workItem.title.Substring(0, 47) + "..."
-        } else {
-            $workItem.title
-        }
-        $workItemState = $workItem.state
+        $workItemTitle = $workItem.title
         
-        if ($workItem.linked_items.Count -eq 0) {
-            # Add a row for work items with no linked items
-            $tableData += [PSCustomObject]@{
-                'Work Item ID' = $workItemId
-                'Title' = $workItemTitle
-                'State' = $workItemState
-                'Linked Item Type' = 'None'
-                'Linked Item Title' = ''
-                'Linked Item URL' = ''
-                'Target Branch' = ''
-                'Status' = ''
-                'Created By' = ''
-                'Creation Date' = ''
+        foreach ($linkedItem in $workItem.linked_items) {
+            $linkedItemType = $linkedItem.type
+            
+            if ($linkedItemType -eq "Pull Request") {
+                # Extract pull request details
+                $pullRequestId = $linkedItem.url -replace '.*/pullrequest/(\d+)$', '$1'
+                $pullRequestTitle = $linkedItem.title
+                $targetBranch = $linkedItem.details.targetRefName
+                $sourceBranch = $linkedItem.details.sourceRefName
+                $status = $linkedItem.details.status
+                $createdBy = $linkedItem.details.createdBy
+                $creationDate = $linkedItem.details.creationDate
+                
+                # Create a unique key for the pull request
+                $key = "PR-$pullRequestId"
+                
+                # Add or update the pull request in the dictionary
+                if (-not $uniquePullRequests.ContainsKey($key)) {
+                    $uniquePullRequests[$key] = @{
+                        'Pull Request ID' = $pullRequestId
+                        'Title' = $pullRequestTitle
+                        'Target Branch' = $targetBranch
+                        'Source Branch' = $sourceBranch
+                        'Status' = $status
+                        'Created By' = $createdBy
+                        'Creation Date' = $creationDate
+                        'Linked Work Items' = @()
+                    }
+                }
+                
+                # Add the work item to the list of linked work items
+                $uniquePullRequests[$key]['Linked Work Items'] += "$workItemId - $workItemTitle"
             }
-        }
-        else {
-            # Add a row for each linked item
-            foreach ($linkedItem in $workItem.linked_items) {
-                $linkedItemType = $linkedItem.type
-                # Truncate the linked item title to 40 characters and add ellipsis if needed
-                $linkedItemTitle = if ($linkedItem.title.Length -gt 40) {
-                    $linkedItem.title.Substring(0, 37) + "..."
-                } else {
-                    $linkedItem.title
-                }
-                $linkedItemUrl = $linkedItem.url
+            elseif ($linkedItemType -eq "Build") {
+                # Extract build details
+                $buildId = $linkedItem.url -replace '.*buildId=(\d+)', '$1'
+                $buildTitle = $linkedItem.title
+                $buildNumber = $linkedItem.details.buildNumber
+                $status = $linkedItem.details.status
+                $result = $linkedItem.details.result
+                $requestedBy = $linkedItem.details.requestedBy
+                $startTime = $linkedItem.details.startTime
                 
-                # Extract details based on the linked item type
-                $targetBranch = ''
-                $status = ''
-                $createdBy = ''
-                $creationDate = ''
+                # Create a unique key for the build
+                $key = "Build-$buildId"
                 
-                if ($linkedItem.details) {
-                    if ($linkedItemType -eq 'Pull Request') {
-                        $targetBranch = $linkedItem.details.targetRefName
-                        $status = $linkedItem.details.status
-                        $createdBy = $linkedItem.details.createdBy
-                        $creationDate = $linkedItem.details.creationDate
-                    }
-                    elseif ($linkedItemType -eq 'Build') {
-                        $status = $linkedItem.details.status
-                        $createdBy = $linkedItem.details.requestedBy
-                        $creationDate = $linkedItem.details.startTime
+                # Add or update the build in the dictionary
+                if (-not $uniqueBuilds.ContainsKey($key)) {
+                    $uniqueBuilds[$key] = @{
+                        'Build ID' = $buildId
+                        'Build Number' = $buildNumber
+                        'Title' = $buildTitle
+                        'Status' = $status
+                        'Result' = $result
+                        'Requested By' = $requestedBy
+                        'Start Time' = $startTime
+                        'Linked Work Items' = @()
                     }
                 }
                 
-                $tableData += [PSCustomObject]@{
-                    'Work Item ID' = $workItemId
-                    'Title' = $workItemTitle
-                    'State' = $workItemState
-                    'Linked Item Type' = $linkedItemType
-                    'Linked Item Title' = $linkedItemTitle
-                    'Linked Item URL' = $linkedItemUrl
-                    'Target Branch' = $targetBranch
-                    'Status' = $status
-                    'Created By' = $createdBy
-                    'Creation Date' = $creationDate
-                }
+                # Add the work item to the list of linked work items
+                $uniqueBuilds[$key]['Linked Work Items'] += "$workItemId - $workItemTitle"
             }
         }
     }
     
-    return $tableData
+    # Convert the dictionaries to arrays of PSCustomObjects
+    $pullRequestTable = @()
+    foreach ($key in $uniquePullRequests.Keys) {
+        $pr = $uniquePullRequests[$key]
+        $linkedWorkItems = $pr['Linked Work Items'] -join "; "
+        
+        $pullRequestTable += [PSCustomObject]@{
+            'Pull Request ID' = $pr['Pull Request ID']
+            'Title' = if ($pr['Title'].Length -gt 50) { $pr['Title'].Substring(0, 47) + "..." } else { $pr['Title'] }
+            'Target Branch' = $pr['Target Branch']
+            'Source Branch' = $pr['Source Branch']
+            'Status' = $pr['Status']
+            'Created By' = $pr['Created By']
+            'Creation Date' = $pr['Creation Date']
+            'Linked Work Items' = if ($linkedWorkItems.Length -gt 50) { $linkedWorkItems.Substring(0, 47) + "..." } else { $linkedWorkItems }
+        }
+    }
+    
+    $buildTable = @()
+    foreach ($key in $uniqueBuilds.Keys) {
+        $build = $uniqueBuilds[$key]
+        $linkedWorkItems = $build['Linked Work Items'] -join "; "
+        
+        $buildTable += [PSCustomObject]@{
+            'Build ID' = $build['Build ID']
+            'Build Number' = $build['Build Number']
+            'Title' = if ($build['Title'].Length -gt 50) { $build['Title'].Substring(0, 47) + "..." } else { $build['Title'] }
+            'Status' = $build['Status']
+            'Result' = $build['Result']
+            'Requested By' = $build['Requested By']
+            'Start Time' = $build['Start Time']
+            'Linked Work Items' = if ($linkedWorkItems.Length -gt 50) { $linkedWorkItems.Substring(0, 47) + "..." } else { $linkedWorkItems }
+        }
+    }
+    
+    return @{
+        'Pull Requests' = $pullRequestTable
+        'Builds' = $buildTable
+    }
 }
 
 # Main execution
 try {
     $summary = Get-DeploymentSummary -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $ProjectName
     
-    # Output the summary as a table
-    $tableData = Format-SummaryAsTable -Summary $summary
-    $tableData | Format-Table -AutoSize
+    # Output the summary as tables
+    $tables = Format-SummaryAsTable -Summary $summary
+    
+    Write-Host "`nPull Requests:"
+    $tables['Pull Requests'] | Format-Table -AutoSize
+    
+    Write-Host "`nBuilds:"
+    $tables['Builds'] | Format-Table -AutoSize
     
     # Also output the summary as JSON for reference
     Write-Host "`nJSON Summary:"
