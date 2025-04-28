@@ -156,7 +156,7 @@
                                     <td>{{ workItem.id }}</td>
                                     <td>{{ workItem.title }}</td>
                                     <td>{{ workItem.state }}</td>
-                                    <td>{{ workItem.linked_items.length }}</td>
+                                    <td>{{ workItem.linked_items ? workItem.linked_items.length : 0 }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -259,16 +259,17 @@
                         </div>
 
                         <!-- Linked Items Section -->
-                        <div v-if="selectedItem['Linked Work Items'] || (selectedItemType === 'work-item' && selectedItem.linked_items.length > 0)" class="details-section linked-items">
+                        <div v-if="selectedItem['Linked Work Items'] || (selectedItemType === 'work-item' && selectedItem.linked_items && selectedItem.linked_items.length > 0)" class="details-section linked-items">
                             <h3>Linked Items</h3>
                             <ul v-if="selectedItem['Linked Work Items']">
                                 <li v-for="(workItem, index) in selectedItem['Linked Work Items'].split('; ')" :key="index">
                                     {{ workItem }}
                                 </li>
                             </ul>
-                            <ul v-else-if="selectedItemType === 'work-item'">
+                            <ul v-else-if="selectedItemType === 'work-item' && selectedItem.linked_items">
                                 <li v-for="linkedItem in selectedItem.linked_items" :key="linkedItem.url">
                                     <strong>{{ linkedItem.type }}:</strong> {{ linkedItem.title }}
+                                    <a v-if="linkedItem.url" :href="linkedItem.url" target="_blank" class="linked-item-link">View</a>
                                 </li>
                             </ul>
                         </div>

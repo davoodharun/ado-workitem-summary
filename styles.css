@@ -292,6 +292,24 @@ tr:hover {
     background-color: #f8f9fa;
     margin-bottom: 5px;
     border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linked-item-link {
+    display: inline-block;
+    padding: 3px 8px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.linked-item-link:hover {
+    background-color: #2980b9;
 }
 
 @media (max-width: 768px) {

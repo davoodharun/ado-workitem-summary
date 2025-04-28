@@ -72,7 +72,18 @@ const app = createApp({
                 // Initialize data
                 pullRequests.value = data['Pull Requests'] || [];
                 builds.value = data['Builds'] || [];
-                workItems.value = data['Work Items'] || [];
+                
+                // Process work items data
+                if (data['Work Items']) {
+                    // If Work Items is an array, use it directly
+                    if (Array.isArray(data['Work Items'])) {
+                        workItems.value = data['Work Items'];
+                    } 
+                    // If Work Items is an object with a work_items property, use that
+                    else if (data['Work Items'].work_items && Array.isArray(data['Work Items'].work_items)) {
+                        workItems.value = data['Work Items'].work_items;
+                    }
+                }
                 
                 errorMessage.value = '';
             } catch (error) {
