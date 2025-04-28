@@ -1,5 +1,5 @@
 // Vue.js Application
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, onMounted, computed } = Vue;
 
 const app = createApp({
     setup() {
@@ -10,11 +10,35 @@ const app = createApp({
         const selectedItem = ref(null);
         const selectedItemType = ref(null);
         const errorMessage = ref('');
+        const selectedBranchFilter = ref('all');
         
         // Computed properties
         const pullRequests = ref([]);
         const builds = ref([]);
         const workItems = ref([]);
+        
+        // Branch filter options
+        const branchFilters = [
+            { id: 'all', name: 'All Branches' },
+            { id: 'ucd/prod', name: 'ucd/prod' },
+            { id: 'ucdweb/prod', name: 'ucdweb/prod' },
+            { id: 'main', name: 'main' },
+            { id: 'prod', name: 'prod' },
+            { id: 'master', name: 'master' },
+            { id: 'ucdapi/prod', name: 'ucdapi/prod' }
+        ];
+        
+        // Filtered pull requests based on selected branch
+        const filteredPullRequests = computed(() => {
+            if (selectedBranchFilter.value === 'all') {
+                return pullRequests.value;
+            }
+            
+            return pullRequests.value.filter(pr => {
+                const targetBranch = pr['Target Branch'];
+                return targetBranch && targetBranch.includes(selectedBranchFilter.value);
+            });
+        });
         
         // Tabs configuration
         const tabs = [
@@ -48,12 +72,22 @@ const app = createApp({
                             {
                                 'Pull Request ID': '12345',
                                 'Title': 'Sample Pull Request',
-                                'Target Branch': 'main',
+                                'Target Branch': 'refs/heads/main',
                                 'Source Branch': 'feature/sample',
                                 'Status': 'Active',
                                 'Created By': 'Sample User',
                                 'Creation Date': '2023-01-01',
                                 'Linked Work Items': '12345 - Sample Work Item'
+                            },
+                            {
+                                'Pull Request ID': '12346',
+                                'Title': 'Sample Pull Request to ucd/prod',
+                                'Target Branch': 'refs/heads/ucd/prod',
+                                'Source Branch': 'feature/sample2',
+                                'Status': 'Active',
+                                'Created By': 'Sample User',
+                                'Creation Date': '2023-01-02',
+                                'Linked Work Items': '12346 - Sample Work Item'
                             }
                         ],
                         'Builds': [
@@ -120,6 +154,10 @@ const app = createApp({
             selectedItemType.value = null;
         };
         
+        const setBranchFilter = (branch) => {
+            selectedBranchFilter.value = branch;
+        };
+        
         // Lifecycle hooks
         onMounted(() => {
             loadDeploymentData();
@@ -132,19 +170,23 @@ const app = createApp({
             selectedItem,
             selectedItemType,
             errorMessage,
+            selectedBranchFilter,
             
             // Data
             pullRequests,
             builds,
             workItems,
+            filteredPullRequests,
             
             // Configuration
             tabs,
+            branchFilters,
             
             // Methods
             showDetails,
             showWorkItemDetails,
-            closeModal
+            closeModal,
+            setBranchFilter
         };
     }
 });

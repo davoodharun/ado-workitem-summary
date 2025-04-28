@@ -39,6 +39,16 @@
             <main>
                 <!-- Pull Requests Tab -->
                 <div v-if="activeTab === 'pull-requests'" class="tab-content active">
+                    <!-- Branch Filter -->
+                    <div class="filter-container">
+                        <label for="branch-filter">Filter by Target Branch:</label>
+                        <select id="branch-filter" v-model="selectedBranchFilter" @change="setBranchFilter(selectedBranchFilter)">
+                            <option v-for="branch in branchFilters" :key="branch.id" :value="branch.id">
+                                {{ branch.name }}
+                            </option>
+                        </select>
+                    </div>
+                    
                     <div class="table-container">
                         <table>
                             <thead>
@@ -53,7 +63,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pr in pullRequests" :key="pr['Pull Request ID']" @click="showDetails('pull-request', pr)">
+                                <tr v-for="pr in filteredPullRequests" :key="pr['Pull Request ID']" @click="showDetails('pull-request', pr)">
                                     <td>{{ pr['Pull Request ID'] }}</td>
                                     <td>{{ pr['Title'] }}</td>
                                     <td>{{ pr['Target Branch'] }}</td>
