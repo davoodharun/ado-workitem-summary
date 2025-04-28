@@ -31,7 +31,8 @@ function Get-PullRequestDetails {
         'Content-Type' = 'application/json'
     }
     
-    $pullRequestUrl = "$OrganizationUrl/$ProjectName/_apis/git/repositories/$RepositoryId/pullRequests/$PullRequestId?api-version=6.0"
+    # Use the simplified API endpoint format as per Microsoft documentation
+    $pullRequestUrl = "$OrganizationUrl/_apis/git/pullrequests/$PullRequestId?api-version=6.0"
     
     try {
         $pullRequest = Invoke-RestMethod -Uri $pullRequestUrl -Method Get -Headers $headers
