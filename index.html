@@ -13,6 +13,18 @@
         <div class="container">
             <header>
                 <h1>Deployment Summary</h1>
+                
+                <!-- Error Message -->
+                <div v-if="errorMessage" class="error-message">
+                    {{ errorMessage }}
+                    <div class="server-instructions">
+                        <h4>To run this application:</h4>
+                        <p><strong>Option 1:</strong> Use Python's built-in server: <code>python server.py</code></p>
+                        <p><strong>Option 2:</strong> Use Node.js: <code>npm install</code> then <code>npm start</code></p>
+                        <p><strong>Option 3:</strong> Use any other local web server</p>
+                    </div>
+                </div>
+                
                 <div class="tabs">
                     <button 
                         v-for="tab in tabs" 

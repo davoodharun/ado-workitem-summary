@@ -26,6 +26,37 @@ h1 {
     margin-bottom: 20px;
 }
 
+.error-message {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ffc107;
+}
+
+.server-instructions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ffeeba;
+}
+
+.server-instructions h4 {
+    margin-bottom: 10px;
+    color: #533f03;
+}
+
+.server-instructions p {
+    margin-bottom: 8px;
+}
+
+.server-instructions code {
+    background-color: #e9ecef;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
 .tabs {
     display: flex;
     gap: 10px;
