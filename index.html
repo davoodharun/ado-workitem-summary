@@ -19,9 +19,8 @@
                     {{ errorMessage }}
                     <div class="server-instructions">
                         <h4>To run this application:</h4>
-                        <p><strong>Option 1:</strong> Use Python's built-in server: <code>python server.py</code></p>
-                        <p><strong>Option 2:</strong> Use Node.js: <code>npm install</code> then <code>npm start</code></p>
-                        <p><strong>Option 3:</strong> Use any other local web server</p>
+                        <p><strong>Option 1:</strong> Use Node.js: <code>npm install</code> then <code>npm start</code></p>
+                        <p><strong>Option 2:</strong> Use any other local web server</p>
                     </div>
                 </div>
                 
@@ -41,12 +40,45 @@
                 <div v-if="activeTab === 'pull-requests'" class="tab-content active">
                     <!-- Branch Filter -->
                     <div class="filter-container">
-                        <label for="branch-filter">Filter by Target Branch:</label>
-                        <select id="branch-filter" v-model="selectedBranchFilter" @change="setBranchFilter(selectedBranchFilter)">
-                            <option v-for="branch in branchFilters" :key="branch.id" :value="branch.id">
+                        <div class="filter-label">Filter by Target Branch:</div>
+                        <div class="filter-options">
+                            <div 
+                                v-for="branch in branchFilters" 
+                                :key="branch.id" 
+                                :class="['filter-option', { active: selectedBranchFilters.includes(branch.id) }]"
+                                @click="toggleBranchFilter(branch.id)">
                                 {{ branch.name }}
-                            </option>
-                        </select>
+                            </div>
+                            
+                            <!-- Custom Filter Input -->
+                            <div v-if="showCustomFilterInput" class="custom-filter-input">
+                                <input 
+                                    type="text" 
+                                    v-model="customBranchFilter" 
+                                    placeholder="Enter branch name"
+                                    @keyup.enter="addCustomFilter">
+                                <button @click="addCustomFilter">Add</button>
+                            </div>
+                            
+                            <!-- Add Custom Filter Button -->
+                            <div 
+                                v-if="!showCustomFilterInput" 
+                                class="filter-option add-custom"
+                                @click="showCustomFilterInput = true">
+                                + Add Custom
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Custom Filters -->
+                        <div v-if="selectedBranchFilters.length > 0 && !selectedBranchFilters.includes('all')" class="selected-custom-filters">
+                            <div 
+                                v-for="filter in selectedBranchFilters.filter(f => !branchFilters.find(b => b.id === f))" 
+                                :key="filter" 
+                                class="custom-filter-tag">
+                                {{ filter }}
+                                <span class="remove-filter" @click="removeCustomFilter(filter)">&times;</span>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="table-container">

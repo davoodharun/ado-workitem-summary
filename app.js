@@ -10,7 +10,9 @@ const app = createApp({
         const selectedItem = ref(null);
         const selectedItemType = ref(null);
         const errorMessage = ref('');
-        const selectedBranchFilter = ref('all');
+        const selectedBranchFilters = ref(['all']);
+        const customBranchFilter = ref('');
+        const showCustomFilterInput = ref(false);
         
         // Computed properties
         const pullRequests = ref([]);
@@ -28,15 +30,27 @@ const app = createApp({
             { id: 'ucdapi/prod', name: 'ucdapi/prod' }
         ];
         
-        // Filtered pull requests based on selected branch
+        // Filtered pull requests based on selected branches
         const filteredPullRequests = computed(() => {
-            if (selectedBranchFilter.value === 'all') {
+            // If 'all' is selected, return all pull requests
+            if (selectedBranchFilters.value.includes('all')) {
                 return pullRequests.value;
             }
             
+            // If no filters are selected, return all pull requests
+            if (selectedBranchFilters.value.length === 0) {
+                return pullRequests.value;
+            }
+            
+            // Filter pull requests based on selected branches
             return pullRequests.value.filter(pr => {
                 const targetBranch = pr['Target Branch'];
-                return targetBranch && targetBranch.includes(selectedBranchFilter.value);
+                if (!targetBranch) return false;
+                
+                // Check if the target branch matches any of the selected filters
+                return selectedBranchFilters.value.some(filter => 
+                    targetBranch.includes(filter)
+                );
             });
         });
         
@@ -154,8 +168,60 @@ const app = createApp({
             selectedItemType.value = null;
         };
         
-        const setBranchFilter = (branch) => {
-            selectedBranchFilter.value = branch;
+        const toggleBranchFilter = (branch) => {
+            // If 'all' is selected, deselect all other filters
+            if (branch === 'all') {
+                selectedBranchFilters.value = ['all'];
+                return;
+            }
+            
+            // If another filter is selected, remove 'all'
+            if (selectedBranchFilters.value.includes('all')) {
+                selectedBranchFilters.value = selectedBranchFilters.value.filter(b => b !== 'all');
+            }
+            
+            // Toggle the selected filter
+            const index = selectedBranchFilters.value.indexOf(branch);
+            if (index === -1) {
+                selectedBranchFilters.value.push(branch);
+            } else {
+                selectedBranchFilters.value.splice(index, 1);
+            }
+            
+            // If no filters are selected, select 'all'
+            if (selectedBranchFilters.value.length === 0) {
+                selectedBranchFilters.value = ['all'];
+            }
+        };
+        
+        const addCustomFilter = () => {
+            if (customBranchFilter.value.trim() === '') return;
+            
+            // Remove 'all' if it's selected
+            if (selectedBranchFilters.value.includes('all')) {
+                selectedBranchFilters.value = selectedBranchFilters.value.filter(b => b !== 'all');
+            }
+            
+            // Add the custom filter
+            if (!selectedBranchFilters.value.includes(customBranchFilter.value)) {
+                selectedBranchFilters.value.push(customBranchFilter.value);
+            }
+            
+            // Reset the custom filter input
+            customBranchFilter.value = '';
+            showCustomFilterInput.value = false;
+        };
+        
+        const removeCustomFilter = (filter) => {
+            const index = selectedBranchFilters.value.indexOf(filter);
+            if (index !== -1) {
+                selectedBranchFilters.value.splice(index, 1);
+            }
+            
+            // If no filters are selected, select 'all'
+            if (selectedBranchFilters.value.length === 0) {
+                selectedBranchFilters.value = ['all'];
+            }
         };
         
         // Lifecycle hooks
@@ -170,7 +236,9 @@ const app = createApp({
             selectedItem,
             selectedItemType,
             errorMessage,
-            selectedBranchFilter,
+            selectedBranchFilters,
+            customBranchFilter,
+            showCustomFilterInput,
             
             // Data
             pullRequests,
@@ -186,7 +254,9 @@ const app = createApp({
             showDetails,
             showWorkItemDetails,
             closeModal,
-            setBranchFilter
+            toggleBranchFilter,
+            addCustomFilter,
+            removeCustomFilter
         };
     }
 });
