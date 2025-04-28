@@ -34,6 +34,14 @@ function Get-PullRequestDetails {
     
     try {
         $pullRequest = Invoke-RestMethod -Uri $pullRequestUrl -Method Get -Headers $headers
+        
+        # Get pull request reviewers (approvals)
+        $reviewersUrl = "$OrganizationUrl/_apis/git/repositories/$RepositoryId/pullrequests/$PullRequestId/reviewers?api-version=6.0"
+        $reviewers = Invoke-RestMethod -Uri $reviewersUrl -Method Get -Headers $headers
+        
+        # Add reviewers to the pull request object
+        $pullRequest | Add-Member -NotePropertyName 'reviewers' -NotePropertyValue $reviewers.value
+        
         return $pullRequest
     }
     catch {
@@ -67,6 +75,43 @@ function Get-BuildDetails {
     catch {
         if ($Debug) {
             Write-Host "Error getting build details: $_"
+        }
+        return $null
+    }
+}
+
+# Function to get work item details including creator and discussions
+function Get-WorkItemDetails {
+    param (
+        [string]$OrganizationUrl,
+        [string]$PersonalAccessToken,
+        [string]$ProjectName,
+        [int]$WorkItemId
+    )
+    
+    $headers = @{
+        'Authorization' = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PersonalAccessToken")))"
+        'Content-Type' = 'application/json'
+    }
+    
+    # Get work item details with expanded fields
+    $workItemUrl = "$OrganizationUrl/$ProjectName/_apis/wit/workitems/$WorkItemId`?`$expand=all&api-version=6.0"
+    
+    try {
+        $workItem = Invoke-RestMethod -Uri $workItemUrl -Method Get -Headers $headers
+        
+        # Get work item comments/discussions
+        $commentsUrl = "$OrganizationUrl/$ProjectName/_apis/wit/workitems/$WorkItemId/comments?api-version=6.0"
+        $comments = Invoke-RestMethod -Uri $commentsUrl -Method Get -Headers $headers
+        
+        # Add comments to the work item object
+        $workItem | Add-Member -NotePropertyName 'comments' -NotePropertyValue $comments.value
+        
+        return $workItem
+    }
+    catch {
+        if ($Debug) {
+            Write-Host "Error getting work item details: $_"
         }
         return $null
     }
@@ -183,6 +228,7 @@ function Convert-ToBrowserUrl {
                         targetRefName = $pullRequestDetails.targetRefName
                         createdBy = $pullRequestDetails.createdBy.displayName
                         creationDate = $pullRequestDetails.creationDate
+                        reviewers = $pullRequestDetails.reviewers
                     }
                 }
             }
@@ -244,7 +290,7 @@ function Get-ReadyForImplementationItems {
     
     $wiqlQuery = @{
         query = @"
-SELECT [System.Id], [System.Title], [System.State]
+SELECT [System.Id], [System.Title], [System.State], [System.CreatedBy], [System.CreatedDate]
 FROM WorkItems
 WHERE [System.WorkItemType] = 'Change Request'
 AND [System.State] = 'Ready for Implementation'
@@ -264,10 +310,21 @@ AND [System.TeamProject] = '$ProjectName'
     
     # Get detailed work item information
     $workItemIds = $wiqlResponse.workItems.id -join ','
-    $workItemsUrl = "$OrganizationUrl/$ProjectName/_apis/wit/workitems?ids=$workItemIds&fields=System.Id,System.Title,System.State&api-version=6.0"
+    $workItemsUrl = "$OrganizationUrl/$ProjectName/_apis/wit/workitems?ids=$workItemIds&fields=System.Id,System.Title,System.State,System.CreatedBy,System.CreatedDate&api-version=6.0"
     $workItems = Invoke-RestMethod -Uri $workItemsUrl -Method Get -Headers $headers
     
-    return $workItems.value
+    # Get additional details for each work item
+    $detailedWorkItems = @()
+    foreach ($workItem in $workItems.value) {
+        $detailedWorkItem = Get-WorkItemDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $ProjectName -WorkItemId $workItem.id
+        if ($detailedWorkItem) {
+            $detailedWorkItems += $detailedWorkItem
+        } else {
+            $detailedWorkItems += $workItem
+        }
+    }
+    
+    return $detailedWorkItems
 }
 
 # Function to get linked items for a work item
@@ -372,6 +429,7 @@ function Format-SummaryAsTable {
                 $status = $linkedItem.details.status
                 $createdBy = $linkedItem.details.createdBy
                 $creationDate = $linkedItem.details.creationDate
+                $reviewers = $linkedItem.details.reviewers
                 
                 # Create a unique key for the pull request
                 $key = "PR-$pullRequestId"
@@ -386,6 +444,7 @@ function Format-SummaryAsTable {
                         'Status' = $status
                         'Created By' = $createdBy
                         'Creation Date' = $creationDate
+                        'Reviewers' = $reviewers
                         'Linked Work Items' = @()
                     }
                 }
@@ -432,6 +491,24 @@ function Format-SummaryAsTable {
         $pr = $uniquePullRequests[$key]
         $linkedWorkItems = $pr['Linked Work Items'] -join "; "
         
+        # Format reviewers
+        $reviewersList = @()
+        if ($pr['Reviewers']) {
+            foreach ($reviewer in $pr['Reviewers']) {
+                $vote = $reviewer.vote
+                $voteText = switch ($vote) {
+                    10 { "Approved" }
+                    5 { "Approved with suggestions" }
+                    0 { "No vote" }
+                    -5 { "Waiting on author" }
+                    -10 { "Rejected" }
+                    default { "No vote" }
+                }
+                $reviewersList += "$($reviewer.displayName) ($voteText)"
+            }
+        }
+        $reviewersText = $reviewersList -join "; "
+        
         $pullRequestTable += [PSCustomObject]@{
             'Pull Request ID' = $pr['Pull Request ID']
             'Title' = if ($pr['Title'].Length -gt 50) { $pr['Title'].Substring(0, 47) + "..." } else { $pr['Title'] }
@@ -440,6 +517,7 @@ function Format-SummaryAsTable {
             'Status' = $pr['Status']
             'Created By' = $pr['Created By']
             'Creation Date' = $pr['Creation Date']
+            'Reviewers' = if ($reviewersText.Length -gt 50) { $reviewersText.Substring(0, 47) + "..." } else { $reviewersText }
             'Linked Work Items' = if ($linkedWorkItems.Length -gt 50) { $linkedWorkItems.Substring(0, 47) + "..." } else { $linkedWorkItems }
         }
     }

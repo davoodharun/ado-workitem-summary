@@ -102,6 +102,7 @@ const app = createApp({
                                 'Status': 'Active',
                                 'Created By': 'Sample User',
                                 'Creation Date': '2023-01-01',
+                                'Reviewers': 'John Doe (Approved); Jane Smith (Approved with suggestions)',
                                 'Linked Work Items': '12345 - Sample Work Item'
                             },
                             {
@@ -112,6 +113,7 @@ const app = createApp({
                                 'Status': 'Active',
                                 'Created By': 'Sample User',
                                 'Creation Date': '2023-01-02',
+                                'Reviewers': 'John Doe (Approved)',
                                 'Linked Work Items': '12346 - Sample Work Item'
                             }
                         ],
@@ -132,6 +134,16 @@ const app = createApp({
                                 'id': '12345',
                                 'title': 'Sample Work Item',
                                 'state': 'Ready for Implementation',
+                                'createdBy': 'Sample User',
+                                'createdDate': '2023-01-01T10:00:00Z',
+                                'comments': [
+                                    {
+                                        'id': 1,
+                                        'text': 'This is a sample comment',
+                                        'createdBy': 'John Doe',
+                                        'createdDate': '2023-01-02T14:30:00Z'
+                                    }
+                                ],
                                 'linked_items': [
                                     {
                                         'type': 'Pull Request',
@@ -235,6 +247,13 @@ const app = createApp({
             }
         };
         
+        // Format date for display
+        const formatDate = (dateString) => {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        };
+        
         // Lifecycle hooks
         onMounted(() => {
             loadDeploymentData();
@@ -267,7 +286,8 @@ const app = createApp({
             closeModal,
             toggleBranchFilter,
             addCustomFilter,
-            removeCustomFilter
+            removeCustomFilter,
+            formatDate
         };
     }
 });

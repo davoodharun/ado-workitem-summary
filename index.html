@@ -4,281 +4,431 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deployment Summary</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Vue.js CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .badge {
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+        }
+        .btn-filter {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .btn-filter.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+        }
+        .modal-footer {
+            background-color: #f8f9fa;
+        }
+        .work-item-details {
+            margin-top: 15px;
+        }
+        .work-item-details h5 {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .comment {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .comment-header {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .comment-date {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        .reviewers-list {
+            margin-top: 10px;
+        }
+        .reviewer-item {
+            margin-bottom: 5px;
+        }
+        .reviewer-approved {
+            color: #198754;
+        }
+        .reviewer-rejected {
+            color: #dc3545;
+        }
+        .reviewer-waiting {
+            color: #ffc107;
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <div class="container">
-            <header>
-                <h1>Deployment Summary</h1>
-                
-                <!-- Error Message -->
-                <div v-if="errorMessage" class="error-message">
-                    {{ errorMessage }}
-                    <div class="server-instructions">
-                        <h4>To run this application:</h4>
-                        <p><strong>Option 1:</strong> Use Node.js: <code>npm install</code> then <code>npm start</code></p>
-                        <p><strong>Option 2:</strong> Use any other local web server</p>
-                    </div>
-                </div>
-                
-                <div class="tabs">
-                    <button 
-                        v-for="tab in tabs" 
-                        :key="tab.id"
-                        :class="['tab-button', { active: activeTab === tab.id }]"
-                        @click="activeTab = tab.id">
-                        {{ tab.name }}
-                    </button>
-                </div>
-            </header>
-
-            <main>
+    <div id="app" class="container">
+        <h1 class="mb-4">Deployment Summary</h1>
+        
+        <div v-if="errorMessage" class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ errorMessage }}
+        </div>
+        
+        <div v-if="deploymentData" class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item" v-for="tab in tabs" :key="tab.id">
+                        <a class="nav-link" :class="{ active: activeTab === tab.id }" href="#" @click.prevent="activeTab = tab.id">
+                            {{ tab.name }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body">
                 <!-- Pull Requests Tab -->
-                <div v-if="activeTab === 'pull-requests'" class="tab-content active">
-                    <!-- Branch Filter -->
-                    <div class="filter-container">
-                        <div class="filter-label">Filter by Target Branch:</div>
-                        <div class="filter-options">
-                            <div 
+                <div v-if="activeTab === 'pull-requests'">
+                    <div class="mb-3">
+                        <h5>Filter by Target Branch</h5>
+                        <div>
+                            <button 
                                 v-for="branch in branchFilters" 
                                 :key="branch.id" 
-                                :class="['filter-option', { active: selectedBranchFilters.includes(branch.id) }]"
+                                class="btn btn-outline-primary btn-sm btn-filter" 
+                                :class="{ active: selectedBranchFilters.includes(branch.id) }"
                                 @click="toggleBranchFilter(branch.id)">
                                 {{ branch.name }}
-                            </div>
+                            </button>
                             
-                            <!-- Custom Filter Input -->
-                            <div v-if="showCustomFilterInput" class="custom-filter-input">
-                                <input 
-                                    type="text" 
-                                    v-model="customBranchFilter" 
-                                    placeholder="Enter branch name"
-                                    @keyup.enter="addCustomFilter">
-                                <button @click="addCustomFilter">Add</button>
-                            </div>
-                            
-                            <!-- Add Custom Filter Button -->
-                            <div 
-                                v-if="!showCustomFilterInput" 
-                                class="filter-option add-custom"
-                                @click="showCustomFilterInput = true">
-                                + Add Custom
-                            </div>
-                        </div>
-                        
-                        <!-- Selected Custom Filters -->
-                        <div v-if="selectedBranchFilters.length > 0 && !selectedBranchFilters.includes('all')" class="selected-custom-filters">
-                            <div 
-                                v-for="filter in selectedBranchFilters.filter(f => !branchFilters.find(b => b.id === f))" 
-                                :key="filter" 
-                                class="custom-filter-tag">
-                                {{ filter }}
-                                <span class="remove-filter" @click="removeCustomFilter(filter)">&times;</span>
+                            <div class="mt-2">
+                                <button 
+                                    class="btn btn-outline-secondary btn-sm" 
+                                    @click="showCustomFilterInput = !showCustomFilterInput">
+                                    <i class="bi bi-plus-circle"></i> Add Custom Filter
+                                </button>
+                                
+                                <div v-if="showCustomFilterInput" class="input-group mt-2" style="max-width: 300px;">
+                                    <input 
+                                        type="text" 
+                                        class="form-control form-control-sm" 
+                                        v-model="customBranchFilter" 
+                                        placeholder="Enter branch name">
+                                    <button 
+                                        class="btn btn-primary btn-sm" 
+                                        @click="addCustomFilter">
+                                        Add
+                                    </button>
+                                </div>
+                                
+                                <div v-if="selectedBranchFilters.filter(f => f !== 'all').length > 0" class="mt-2">
+                                    <span class="me-2">Active filters:</span>
+                                    <span 
+                                        v-for="filter in selectedBranchFilters.filter(f => f !== 'all')" 
+                                        :key="filter" 
+                                        class="badge bg-primary me-2">
+                                        {{ filter }}
+                                        <i class="bi bi-x-circle ms-1" style="cursor: pointer;" @click="removeCustomFilter(filter)"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="table-container">
-                        <table>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Pull Request ID</th>
+                                    <th>ID</th>
                                     <th>Title</th>
                                     <th>Target Branch</th>
                                     <th>Source Branch</th>
                                     <th>Status</th>
                                     <th>Created By</th>
                                     <th>Creation Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pr in filteredPullRequests" :key="pr['Pull Request ID']" @click="showDetails('pull-request', pr)">
+                                <tr v-for="pr in filteredPullRequests" :key="pr['Pull Request ID']">
                                     <td>{{ pr['Pull Request ID'] }}</td>
                                     <td>{{ pr['Title'] }}</td>
                                     <td>{{ pr['Target Branch'] }}</td>
                                     <td>{{ pr['Source Branch'] }}</td>
-                                    <td>{{ pr['Status'] }}</td>
+                                    <td>
+                                        <span class="badge" :class="{
+                                            'bg-success': pr['Status'] === 'Completed',
+                                            'bg-warning': pr['Status'] === 'Active',
+                                            'bg-danger': pr['Status'] === 'Abandoned'
+                                        }">
+                                            {{ pr['Status'] }}
+                                        </span>
+                                    </td>
                                     <td>{{ pr['Created By'] }}</td>
                                     <td>{{ pr['Creation Date'] }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" @click="showDetails('pull-request', pr)">
+                                            <i class="bi bi-info-circle"></i> Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="filteredPullRequests.length === 0">
+                                    <td colspan="8" class="text-center">No pull requests found</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
+                
                 <!-- Builds Tab -->
-                <div v-if="activeTab === 'builds'" class="tab-content active">
-                    <div class="table-container">
-                        <table>
+                <div v-if="activeTab === 'builds'">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Build ID</th>
+                                    <th>ID</th>
                                     <th>Build Number</th>
                                     <th>Title</th>
                                     <th>Status</th>
                                     <th>Result</th>
                                     <th>Requested By</th>
                                     <th>Start Time</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="build in builds" :key="build['Build ID']" @click="showDetails('build', build)">
+                                <tr v-for="build in builds" :key="build['Build ID']">
                                     <td>{{ build['Build ID'] }}</td>
                                     <td>{{ build['Build Number'] }}</td>
                                     <td>{{ build['Title'] }}</td>
-                                    <td>{{ build['Status'] }}</td>
-                                    <td>{{ build['Result'] }}</td>
+                                    <td>
+                                        <span class="badge" :class="{
+                                            'bg-success': build['Status'] === 'Completed',
+                                            'bg-warning': build['Status'] === 'InProgress',
+                                            'bg-danger': build['Status'] === 'Cancelling' || build['Status'] === 'Cancelled'
+                                        }">
+                                            {{ build['Status'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" :class="{
+                                            'bg-success': build['Result'] === 'Succeeded',
+                                            'bg-danger': build['Result'] === 'Failed',
+                                            'bg-warning': build['Result'] === 'PartiallySucceeded'
+                                        }">
+                                            {{ build['Result'] }}
+                                        </span>
+                                    </td>
                                     <td>{{ build['Requested By'] }}</td>
                                     <td>{{ build['Start Time'] }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" @click="showDetails('build', build)">
+                                            <i class="bi bi-info-circle"></i> Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="builds.length === 0">
+                                    <td colspan="8" class="text-center">No builds found</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
+                
                 <!-- Work Items Tab -->
-                <div v-if="activeTab === 'work-items'" class="tab-content active">
-                    <div class="table-container">
-                        <table>
+                <div v-if="activeTab === 'work-items'">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Work Item ID</th>
+                                    <th>ID</th>
                                     <th>Title</th>
                                     <th>State</th>
-                                    <th>Linked Items</th>
+                                    <th>Created By</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="workItem in workItems" :key="workItem.id" @click="showWorkItemDetails(workItem)">
+                                <tr v-for="workItem in workItems" :key="workItem.id">
                                     <td>{{ workItem.id }}</td>
                                     <td>{{ workItem.title }}</td>
-                                    <td>{{ workItem.state }}</td>
-                                    <td>{{ workItem.linked_items ? workItem.linked_items.length : 0 }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ workItem.state }}</span>
+                                    </td>
+                                    <td>{{ workItem.createdBy }}</td>
+                                    <td>{{ formatDate(workItem.createdDate) }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" @click="showWorkItemDetails(workItem)">
+                                            <i class="bi bi-info-circle"></i> Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="workItems.length === 0">
+                                    <td colspan="6" class="text-center">No work items found</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </main>
-
-            <!-- Details Modal -->
-            <div v-if="showModal" class="modal" @click="closeModal">
-                <div class="modal-content" @click.stop>
-                    <span class="close" @click="closeModal">&times;</span>
-                    <div v-if="selectedItem">
+            </div>
+        </div>
+        
+        <!-- Details Modal -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalLabel">
+                            <span v-if="selectedItemType === 'pull-request'">Pull Request Details</span>
+                            <span v-else-if="selectedItemType === 'build'">Build Details</span>
+                            <span v-else-if="selectedItemType === 'work-item'">Work Item Details</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="closeModal"></button>
+                    </div>
+                    <div class="modal-body">
                         <!-- Pull Request Details -->
-                        <div v-if="selectedItemType === 'pull-request'" class="details-section">
-                            <h3>Pull Request Details</h3>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <strong>Pull Request ID</strong>
-                                    {{ selectedItem['Pull Request ID'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Title</strong>
-                                    {{ selectedItem['Title'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Target Branch</strong>
-                                    {{ selectedItem['Target Branch'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Source Branch</strong>
-                                    {{ selectedItem['Source Branch'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Status</strong>
+                        <div v-if="selectedItemType === 'pull-request' && selectedItem">
+                            <h5>{{ selectedItem['Title'] }}</h5>
+                            <p><strong>ID:</strong> {{ selectedItem['Pull Request ID'] }}</p>
+                            <p><strong>Target Branch:</strong> {{ selectedItem['Target Branch'] }}</p>
+                            <p><strong>Source Branch:</strong> {{ selectedItem['Source Branch'] }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge" :class="{
+                                    'bg-success': selectedItem['Status'] === 'Completed',
+                                    'bg-warning': selectedItem['Status'] === 'Active',
+                                    'bg-danger': selectedItem['Status'] === 'Abandoned'
+                                }">
                                     {{ selectedItem['Status'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Created By</strong>
-                                    {{ selectedItem['Created By'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Creation Date</strong>
-                                    {{ selectedItem['Creation Date'] }}
+                                </span>
+                            </p>
+                            <p><strong>Created By:</strong> {{ selectedItem['Created By'] }}</p>
+                            <p><strong>Creation Date:</strong> {{ selectedItem['Creation Date'] }}</p>
+                            
+                            <div v-if="selectedItem['Reviewers']" class="reviewers-list">
+                                <h5>Reviewers</h5>
+                                <div v-for="reviewer in selectedItem['Reviewers'].split(';')" :key="reviewer" class="reviewer-item">
+                                    <span :class="{
+                                        'reviewer-approved': reviewer.includes('Approved'),
+                                        'reviewer-rejected': reviewer.includes('Rejected'),
+                                        'reviewer-waiting': reviewer.includes('Waiting')
+                                    }">
+                                        {{ reviewer.trim() }}
+                                    </span>
                                 </div>
                             </div>
+                            
+                            <div v-if="selectedItem['Linked Work Items']">
+                                <h5>Linked Work Items</h5>
+                                <p>{{ selectedItem['Linked Work Items'] }}</p>
+                            </div>
                         </div>
-
+                        
                         <!-- Build Details -->
-                        <div v-if="selectedItemType === 'build'" class="details-section">
-                            <h3>Build Details</h3>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <strong>Build ID</strong>
-                                    {{ selectedItem['Build ID'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Build Number</strong>
-                                    {{ selectedItem['Build Number'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Title</strong>
-                                    {{ selectedItem['Title'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Status</strong>
+                        <div v-if="selectedItemType === 'build' && selectedItem">
+                            <h5>{{ selectedItem['Title'] }}</h5>
+                            <p><strong>ID:</strong> {{ selectedItem['Build ID'] }}</p>
+                            <p><strong>Build Number:</strong> {{ selectedItem['Build Number'] }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge" :class="{
+                                    'bg-success': selectedItem['Status'] === 'Completed',
+                                    'bg-warning': selectedItem['Status'] === 'InProgress',
+                                    'bg-danger': selectedItem['Status'] === 'Cancelling' || selectedItem['Status'] === 'Cancelled'
+                                }">
                                     {{ selectedItem['Status'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Result</strong>
+                                </span>
+                            </p>
+                            <p><strong>Result:</strong> 
+                                <span class="badge" :class="{
+                                    'bg-success': selectedItem['Result'] === 'Succeeded',
+                                    'bg-danger': selectedItem['Result'] === 'Failed',
+                                    'bg-warning': selectedItem['Result'] === 'PartiallySucceeded'
+                                }">
                                     {{ selectedItem['Result'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Requested By</strong>
-                                    {{ selectedItem['Requested By'] }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Start Time</strong>
-                                    {{ selectedItem['Start Time'] }}
-                                </div>
+                                </span>
+                            </p>
+                            <p><strong>Requested By:</strong> {{ selectedItem['Requested By'] }}</p>
+                            <p><strong>Start Time:</strong> {{ selectedItem['Start Time'] }}</p>
+                            
+                            <div v-if="selectedItem['Linked Work Items']">
+                                <h5>Linked Work Items</h5>
+                                <p>{{ selectedItem['Linked Work Items'] }}</p>
                             </div>
                         </div>
-
+                        
                         <!-- Work Item Details -->
-                        <div v-if="selectedItemType === 'work-item'" class="details-section">
-                            <h3>Work Item Details</h3>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <strong>Work Item ID</strong>
-                                    {{ selectedItem.id }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>Title</strong>
-                                    {{ selectedItem.title }}
-                                </div>
-                                <div class="details-item">
-                                    <strong>State</strong>
-                                    {{ selectedItem.state }}
+                        <div v-if="selectedItemType === 'work-item' && selectedItem" class="work-item-details">
+                            <h5>{{ selectedItem.title }}</h5>
+                            <p><strong>ID:</strong> {{ selectedItem.id }}</p>
+                            <p><strong>State:</strong> 
+                                <span class="badge bg-info">{{ selectedItem.state }}</span>
+                            </p>
+                            <p><strong>Created By:</strong> {{ selectedItem.createdBy }}</p>
+                            <p><strong>Created Date:</strong> {{ formatDate(selectedItem.createdDate) }}</p>
+                            
+                            <div v-if="selectedItem.comments && selectedItem.comments.length > 0">
+                                <h5>Comments</h5>
+                                <div v-for="comment in selectedItem.comments" :key="comment.id" class="comment">
+                                    <div class="comment-header">
+                                        {{ comment.createdBy }}
+                                        <span class="comment-date">{{ formatDate(comment.createdDate) }}</span>
+                                    </div>
+                                    <div class="comment-text">
+                                        {{ comment.text }}
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <div v-if="selectedItem.linked_items && selectedItem.linked_items.length > 0">
+                                <h5>Linked Items</h5>
+                                <ul class="list-group">
+                                    <li v-for="(item, index) in selectedItem.linked_items" :key="index" class="list-group-item">
+                                        <strong>{{ item.type }}:</strong> 
+                                        <a :href="item.url" target="_blank">{{ item.title }}</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-
-                        <!-- Linked Items Section -->
-                        <div v-if="selectedItem['Linked Work Items'] || (selectedItemType === 'work-item' && selectedItem.linked_items && selectedItem.linked_items.length > 0)" class="details-section linked-items">
-                            <h3>Linked Items</h3>
-                            <ul v-if="selectedItem['Linked Work Items']">
-                                <li v-for="(workItem, index) in selectedItem['Linked Work Items'].split('; ')" :key="index">
-                                    {{ workItem }}
-                                </li>
-                            </ul>
-                            <ul v-else-if="selectedItemType === 'work-item' && selectedItem.linked_items">
-                                <li v-for="linkedItem in selectedItem.linked_items" :key="linkedItem.url">
-                                    <strong>{{ linkedItem.type }}:</strong> {{ linkedItem.title }}
-                                    <a v-if="linkedItem.url" :href="linkedItem.url" target="_blank" class="linked-item-link">View</a>
-                                </li>
-                            </ul>
-                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="app.js"></script>
 </body>
 </html> 
