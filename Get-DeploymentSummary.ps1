@@ -391,10 +391,16 @@ function Get-DeploymentSummary {
     foreach ($workItem in $workItems) {
         $linkedItems = Get-LinkedItems -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $ProjectName -WorkItemId $workItem.id
         
+        # Create a browser-friendly URL for the work item
+        $workItemUrl = "$OrganizationUrl/$ProjectName/_workitems/edit/$($workItem.id)"
+        
         $summary.work_items += @{
             id = $workItem.id
             title = $workItem.fields.'System.Title'
             state = $workItem.fields.'System.State'
+            createdBy = $workItem.fields.'System.CreatedBy'.displayName
+            createdDate = $workItem.fields.'System.CreatedDate'
+            url = $workItemUrl
             linked_items = $linkedItems
         }
     }
@@ -430,6 +436,7 @@ function Format-SummaryAsTable {
                 $createdBy = $linkedItem.details.createdBy
                 $creationDate = $linkedItem.details.creationDate
                 $reviewers = $linkedItem.details.reviewers
+                $url = $linkedItem.url
                 
                 # Create a unique key for the pull request
                 $key = "PR-$pullRequestId"
@@ -445,6 +452,7 @@ function Format-SummaryAsTable {
                         'Created By' = $createdBy
                         'Creation Date' = $creationDate
                         'Reviewers' = $reviewers
+                        'URL' = $url
                         'Linked Work Items' = @()
                     }
                 }
@@ -461,6 +469,7 @@ function Format-SummaryAsTable {
                 $result = $linkedItem.details.result
                 $requestedBy = $linkedItem.details.requestedBy
                 $startTime = $linkedItem.details.startTime
+                $url = $linkedItem.url
                 
                 # Create a unique key for the build
                 $key = "Build-$buildId"
@@ -475,6 +484,7 @@ function Format-SummaryAsTable {
                         'Result' = $result
                         'Requested By' = $requestedBy
                         'Start Time' = $startTime
+                        'URL' = $url
                         'Linked Work Items' = @()
                     }
                 }
@@ -518,6 +528,7 @@ function Format-SummaryAsTable {
             'Created By' = $pr['Created By']
             'Creation Date' = $pr['Creation Date']
             'Reviewers' = if ($reviewersText.Length -gt 50) { $reviewersText.Substring(0, 47) + "..." } else { $reviewersText }
+            'URL' = $pr['URL']
             'Linked Work Items' = if ($linkedWorkItems.Length -gt 50) { $linkedWorkItems.Substring(0, 47) + "..." } else { $linkedWorkItems }
         }
     }
@@ -535,6 +546,7 @@ function Format-SummaryAsTable {
             'Result' = $build['Result']
             'Requested By' = $build['Requested By']
             'Start Time' = $build['Start Time']
+            'URL' = $build['URL']
             'Linked Work Items' = if ($linkedWorkItems.Length -gt 50) { $linkedWorkItems.Substring(0, 47) + "..." } else { $linkedWorkItems }
         }
     }
