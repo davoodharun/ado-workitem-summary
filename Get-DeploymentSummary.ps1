@@ -363,11 +363,90 @@ function Get-DeploymentSummary {
     return $summary
 }
 
+# Function to format the summary as a table
+function Format-SummaryAsTable {
+    param (
+        [object]$Summary
+    )
+    
+    $tableData = @()
+    
+    foreach ($workItem in $Summary.work_items) {
+        $workItemId = $workItem.id
+        $workItemTitle = $workItem.title
+        $workItemState = $workItem.state
+        
+        if ($workItem.linked_items.Count -eq 0) {
+            # Add a row for work items with no linked items
+            $tableData += [PSCustomObject]@{
+                'Work Item ID' = $workItemId
+                'Title' = $workItemTitle
+                'State' = $workItemState
+                'Linked Item Type' = 'None'
+                'Linked Item Title' = ''
+                'Linked Item URL' = ''
+                'Target Branch' = ''
+                'Status' = ''
+                'Created By' = ''
+                'Creation Date' = ''
+            }
+        }
+        else {
+            # Add a row for each linked item
+            foreach ($linkedItem in $workItem.linked_items) {
+                $linkedItemType = $linkedItem.type
+                $linkedItemTitle = $linkedItem.title
+                $linkedItemUrl = $linkedItem.url
+                
+                # Extract details based on the linked item type
+                $targetBranch = ''
+                $status = ''
+                $createdBy = ''
+                $creationDate = ''
+                
+                if ($linkedItem.details) {
+                    if ($linkedItemType -eq 'Pull Request') {
+                        $targetBranch = $linkedItem.details.targetRefName
+                        $status = $linkedItem.details.status
+                        $createdBy = $linkedItem.details.createdBy
+                        $creationDate = $linkedItem.details.creationDate
+                    }
+                    elseif ($linkedItemType -eq 'Build') {
+                        $status = $linkedItem.details.status
+                        $createdBy = $linkedItem.details.requestedBy
+                        $creationDate = $linkedItem.details.startTime
+                    }
+                }
+                
+                $tableData += [PSCustomObject]@{
+                    'Work Item ID' = $workItemId
+                    'Title' = $workItemTitle
+                    'State' = $workItemState
+                    'Linked Item Type' = $linkedItemType
+                    'Linked Item Title' = $linkedItemTitle
+                    'Linked Item URL' = $linkedItemUrl
+                    'Target Branch' = $targetBranch
+                    'Status' = $status
+                    'Created By' = $createdBy
+                    'Creation Date' = $creationDate
+                }
+            }
+        }
+    }
+    
+    return $tableData
+}
+
 # Main execution
 try {
     $summary = Get-DeploymentSummary -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $ProjectName
     
-    # Output the summary as JSON
+    # Output the summary as a table
+    $tableData = Format-SummaryAsTable -Summary $summary
+    $tableData | Format-Table -AutoSize
+    
+    # Also output the summary as JSON for reference
+    Write-Host "`nJSON Summary:"
     $summary | ConvertTo-Json -Depth 10
 }
 catch {
