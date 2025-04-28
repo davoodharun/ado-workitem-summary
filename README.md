@@ -30,7 +30,8 @@ The script will:
 1. Connect to Azure DevOps using your credentials
 2. Find all Change Request work items in "Ready for Implementation" state
 3. For each work item, collect linked Pull Requests and Build Pipeline references
-4. Generate a JSON summary of the findings
+4. Convert the internal vstfs:// URLs to browser-friendly URLs that can be opened directly
+5. Generate a JSON summary of the findings
 
 ## Output
 
@@ -38,7 +39,7 @@ The script outputs a JSON summary containing:
 - Work item ID
 - Work item title
 - Work item state
-- List of linked items (Pull Requests and Build Pipeline references)
+- List of linked items with browser-friendly URLs (Pull Requests and Build Pipeline references)
 
 ## Notes
 
@@ -47,6 +48,7 @@ The script outputs a JSON summary containing:
   - ucdstage to ucdprod
   - ucdweb/stage to ucdweb/prod
 - Build pipeline references are also included in the summary
+- All URLs in the output are converted to browser-friendly format that can be opened directly in a web browser
 
 ## Security Considerations
 

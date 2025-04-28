@@ -13,6 +13,34 @@ param (
     [string]$ProjectName = "EU-Change Governance"
 )
 
+# Function to convert vstfs:// URLs to browser-friendly URLs
+function Convert-ToBrowserUrl {
+    param (
+        [string]$VstfsUrl,
+        [string]$OrganizationUrl,
+        [string]$ProjectName
+    )
+    
+    # Extract repository and pull request IDs from vstfs:// URL
+    if ($VstfsUrl -match 'vstfs:///Git/PullRequestId/(\d+)/(\d+)') {
+        $repositoryId = $matches[1]
+        $pullRequestId = $matches[2]
+        
+        # Construct browser-friendly URL
+        return "$OrganizationUrl/$ProjectName/_git/_apis/git/repositories/$repositoryId/pullRequests/$pullRequestId"
+    }
+    elseif ($VstfsUrl -match 'vstfs:///Build/Build/(\d+)') {
+        $buildId = $matches[1]
+        
+        # Construct browser-friendly URL for build
+        return "$OrganizationUrl/$ProjectName/_build/results?buildId=$buildId"
+    }
+    else {
+        # Return original URL if it doesn't match expected patterns
+        return $VstfsUrl
+    }
+}
+
 # Function to get work items in "Ready for Implementation" state
 function Get-ReadyForImplementationItems {
     param (
@@ -84,8 +112,11 @@ function Get-LinkedItems {
                 $url -match 'ucdstage to ucdprod' -or 
                 $url -match 'ucdweb/stage to ucdweb/prod') {
                 
+                # Convert vstfs:// URL to browser-friendly URL
+                $browserUrl = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -ProjectName $ProjectName
+                
                 $linkedItems += @{
-                    url = $relation.url
+                    url = $browserUrl
                     type = $relation.rel
                     title = $relation.attributes.name
                 }
