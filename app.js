@@ -318,6 +318,18 @@ const app = createApp({
                 modalElement.addEventListener('shown.bs.modal', () => {
                     // Ensure the modal is properly displayed
                     document.body.classList.add('modal-open');
+                    
+                    // Fix for modal not being clickable
+                    const modalBackdrop = document.querySelector('.modal-backdrop');
+                    if (modalBackdrop) {
+                        modalBackdrop.style.zIndex = '999';
+                    }
+                    
+                    // Ensure modal content is clickable
+                    const modalContent = document.querySelector('.modal-content');
+                    if (modalContent) {
+                        modalContent.style.zIndex = '1002';
+                    }
                 });
             }
             

@@ -556,6 +556,18 @@
             document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
+            
+            // Fix for modal not being clickable
+            const modalElement = document.getElementById('detailsModal');
+            if (modalElement) {
+                modalElement.addEventListener('shown.bs.modal', function() {
+                    // Ensure modal content is clickable
+                    const modalContent = document.querySelector('.modal-content');
+                    if (modalContent) {
+                        modalContent.style.zIndex = '1002';
+                    }
+                });
+            }
         });
     </script>
 </body>

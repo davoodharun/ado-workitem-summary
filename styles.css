@@ -260,6 +260,15 @@ tr:hover td {
     justify-content: center;
 }
 
+.modal-backdrop {
+    z-index: 999; /* Ensure backdrop is below the modal */
+}
+
+.modal-dialog {
+    z-index: 1001; /* Ensure dialog is above the backdrop */
+    position: relative;
+}
+
 .modal-content {
     position: relative;
     background-color: #1e1e1e;
@@ -270,7 +279,8 @@ tr:hover td {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     max-height: 90vh;
     overflow-y: auto;
-    color: #ffffff;
+    color: #ffffff !important; /* Changed to white for better readability */
+    z-index: 1002; /* Ensure content is above the dialog */
 }
 
 .close {
