@@ -85,182 +85,43 @@ function Convert-ToBrowserUrl {
         Write-Host "Converting URL: $VstfsUrl"
     }
     
-    # Extract repository and pull request IDs from vstfs:// URL
+    # Initialize variables
+    $result = @{
+        url = $VstfsUrl
+        type = "Unknown"
+    }
+    
+    # Extract IDs from vstfs:// URL based on different patterns
+    $repositoryId = $null
+    $pullRequestId = $null
+    $buildId = $null
+    $refName = $null
+    $commitId = $null
+    
+    # Check for Pull Request URLs
     if ($VstfsUrl -match 'vstfs:///Git/PullRequestId/(\d+)/(\d+)') {
         $repositoryId = $matches[1]
         $pullRequestId = $matches[2]
-        
-        # Get pull request details
-        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-        
-        # Use project name and repository ID from the pull request details if available
-        $projectName = $DefaultProjectName
-        $repoId = $repositoryId
-        
-        if ($pullRequestDetails -and $pullRequestDetails.repository) {
-            $projectName = $pullRequestDetails.repository.project.name
-            $repoId = $pullRequestDetails.repository.id
-        }
-        
-        # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Pull Request"
-        }
-        
-        # Add pull request details if available
-        if ($pullRequestDetails) {
-            $result.details = @{
-                title = $pullRequestDetails.title
-                status = $pullRequestDetails.status
-                sourceRefName = $pullRequestDetails.sourceRefName
-                targetRefName = $pullRequestDetails.targetRefName
-                createdBy = $pullRequestDetails.createdBy.displayName
-                creationDate = $pullRequestDetails.creationDate
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Pull Request"
     }
-    # Handle vstfs:///Git/PullRequest URLs (alternative format)
     elseif ($VstfsUrl -match 'vstfs:///Git/PullRequest/(\d+)/(\d+)') {
         $repositoryId = $matches[1]
         $pullRequestId = $matches[2]
-        
-        # Get pull request details
-        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-        
-        # Use project name and repository ID from the pull request details if available
-        $projectName = $DefaultProjectName
-        $repoId = $repositoryId
-        
-        if ($pullRequestDetails -and $pullRequestDetails.repository) {
-            $projectName = $pullRequestDetails.repository.project.name
-            $repoId = $pullRequestDetails.repository.id
-        }
-        
-        # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Pull Request"
-        }
-        
-        # Add pull request details if available
-        if ($pullRequestDetails) {
-            $result.details = @{
-                title = $pullRequestDetails.title
-                status = $pullRequestDetails.status
-                sourceRefName = $pullRequestDetails.sourceRefName
-                targetRefName = $pullRequestDetails.targetRefName
-                createdBy = $pullRequestDetails.createdBy.displayName
-                creationDate = $pullRequestDetails.creationDate
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Pull Request"
     }
-    # Handle vstfs:///Git/PullRequest URLs with %2F format
     elseif ($VstfsUrl -match 'vstfs:///Git/PullRequest/([^%]+)%2F([^%]+)%2F(\d+)') {
         $repositoryId = $matches[1]
         $projectId = $matches[2]
         $pullRequestId = $matches[3]
-        
-        # Get pull request details
-        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-        
-        # Use project name and repository ID from the pull request details if available
-        $projectName = $DefaultProjectName
-        $repoId = $repositoryId
-        
-        if ($pullRequestDetails -and $pullRequestDetails.repository) {
-            $projectName = $pullRequestDetails.repository.project.name
-            $repoId = $pullRequestDetails.repository.id
-        }
-        
-        # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Pull Request"
-        }
-        
-        # Add pull request details if available
-        if ($pullRequestDetails) {
-            $result.details = @{
-                title = $pullRequestDetails.title
-                status = $pullRequestDetails.status
-                sourceRefName = $pullRequestDetails.sourceRefName
-                targetRefName = $pullRequestDetails.targetRefName
-                createdBy = $pullRequestDetails.createdBy.displayName
-                creationDate = $pullRequestDetails.creationDate
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Pull Request"
     }
-    # Handle vstfs:///Git/PullRequest URLs with %2F format (alternative pattern)
     elseif ($VstfsUrl -match 'vstfs:///Git/PullRequest/([^%]+)%2F([^%]+)%2F([^%]+)%2F(\d+)') {
         $repositoryId = $matches[1]
         $projectId = $matches[2]
         $repositoryName = $matches[3]
         $pullRequestId = $matches[4]
-        
-        # Get pull request details
-        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-        
-        # Use project name and repository ID from the pull request details if available
-        $projectName = $DefaultProjectName
-        $repoId = $repositoryId
-        
-        if ($pullRequestDetails -and $pullRequestDetails.repository) {
-            $projectName = $pullRequestDetails.repository.project.name
-            $repoId = $pullRequestDetails.repository.id
-        }
-        
-        # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Pull Request"
-        }
-        
-        # Add pull request details if available
-        if ($pullRequestDetails) {
-            $result.details = @{
-                title = $pullRequestDetails.title
-                status = $pullRequestDetails.status
-                sourceRefName = $pullRequestDetails.sourceRefName
-                targetRefName = $pullRequestDetails.targetRefName
-                createdBy = $pullRequestDetails.createdBy.displayName
-                creationDate = $pullRequestDetails.creationDate
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Pull Request"
     }
-    # Fallback method for any vstfs:///Git/PullRequest URL
     elseif ($VstfsUrl -match 'vstfs:///Git/PullRequest') {
         # Split the URL by %2F and get the last part as the pull request ID
         $parts = $VstfsUrl -split '%2F'
@@ -274,123 +135,98 @@ function Convert-ToBrowserUrl {
             # For now, we'll use a placeholder
             $repositoryId = "unknown"
         }
-        
-        # Get pull request details
-        $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-        
-        # Use project name and repository ID from the pull request details if available
-        $projectName = $DefaultProjectName
-        $repoId = $repositoryId
-        
-        if ($pullRequestDetails -and $pullRequestDetails.repository) {
-            $projectName = $pullRequestDetails.repository.project.name
-            $repoId = $pullRequestDetails.repository.id
-        }
-        
-        # Construct browser-friendly URL for pull request
-        $browserUrl = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Pull Request"
-        }
-        
-        # Add pull request details if available
-        if ($pullRequestDetails) {
-            $result.details = @{
-                title = $pullRequestDetails.title
-                status = $pullRequestDetails.status
-                sourceRefName = $pullRequestDetails.sourceRefName
-                targetRefName = $pullRequestDetails.targetRefName
-                createdBy = $pullRequestDetails.createdBy.displayName
-                creationDate = $pullRequestDetails.creationDate
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Pull Request"
     }
+    # Check for Build URLs
     elseif ($VstfsUrl -match 'vstfs:///Build/Build/(\d+)') {
         $buildId = $matches[1]
-        
-        # Get build details
-        $buildDetails = Get-BuildDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -BuildId $buildId
-        
-        # Construct browser-friendly URL for build
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_build/results?buildId=$buildId"
-        
-        # Create a result object with URL and details
-        $result = @{
-            url = $browserUrl
-            type = "Build"
-        }
-        
-        # Add build details if available
-        if ($buildDetails) {
-            $result.details = @{
-                buildNumber = $buildDetails.buildNumber
-                status = $buildDetails.status
-                result = $buildDetails.result
-                startTime = $buildDetails.startTime
-                finishTime = $buildDetails.finishTime
-                requestedBy = $buildDetails.requestedBy.displayName
-            }
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Build"
     }
+    # Check for Branch Reference URLs
     elseif ($VstfsUrl -match 'vstfs:///Git/Ref/(\d+)/(\w+)') {
         $repositoryId = $matches[1]
         $refName = $matches[2]
-        
-        # Construct browser-friendly URL for branch reference
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
-        
-        # Create a result object with URL
-        $result = @{
-            url = $browserUrl
-            type = "Branch Reference"
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Branch Reference"
     }
+    # Check for Commit URLs
     elseif ($VstfsUrl -match 'vstfs:///Git/Commit/(\d+)/(\w+)') {
         $repositoryId = $matches[1]
         $commitId = $matches[2]
-        
-        # Construct browser-friendly URL for commit
-        $browserUrl = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
-        
-        # Create a result object with URL
-        $result = @{
-            url = $browserUrl
-            type = "Commit"
-        }
-        
-        if ($Debug) {
-            Write-Host "Converted to: $browserUrl"
-        }
-        return $result
+        $result.type = "Commit"
     }
-    else {
-        # Return original URL if it doesn't match expected patterns
-        if ($Debug) {
-            Write-Host "Could not convert URL, returning original"
+    
+    # Process based on the type
+    switch ($result.type) {
+        "Pull Request" {
+            if ($pullRequestId) {
+                # Get pull request details
+                $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
+                
+                # Use project name and repository ID from the pull request details if available
+                $projectName = $DefaultProjectName
+                $repoId = $repositoryId
+                
+                if ($pullRequestDetails -and $pullRequestDetails.repository) {
+                    $projectName = $pullRequestDetails.repository.project.name
+                    $repoId = $pullRequestDetails.repository.id
+                }
+                
+                # Construct browser-friendly URL for pull request
+                $result.url = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
+                
+                # Add pull request details if available
+                if ($pullRequestDetails) {
+                    $result.details = @{
+                        title = $pullRequestDetails.title
+                        status = $pullRequestDetails.status
+                        sourceRefName = $pullRequestDetails.sourceRefName
+                        targetRefName = $pullRequestDetails.targetRefName
+                        createdBy = $pullRequestDetails.createdBy.displayName
+                        creationDate = $pullRequestDetails.creationDate
+                    }
+                }
+            }
         }
-        return @{
-            url = $VstfsUrl
-            type = "Unknown"
+        "Build" {
+            if ($buildId) {
+                # Get build details
+                $buildDetails = Get-BuildDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -BuildId $buildId
+                
+                # Construct browser-friendly URL for build
+                $result.url = "$OrganizationUrl/$DefaultProjectName/_build/results?buildId=$buildId"
+                
+                # Add build details if available
+                if ($buildDetails) {
+                    $result.details = @{
+                        buildNumber = $buildDetails.buildNumber
+                        status = $buildDetails.status
+                        result = $buildDetails.result
+                        startTime = $buildDetails.startTime
+                        finishTime = $buildDetails.finishTime
+                        requestedBy = $buildDetails.requestedBy.displayName
+                    }
+                }
+            }
+        }
+        "Branch Reference" {
+            if ($repositoryId -and $refName) {
+                # Construct browser-friendly URL for branch reference
+                $result.url = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
+            }
+        }
+        "Commit" {
+            if ($repositoryId -and $commitId) {
+                # Construct browser-friendly URL for commit
+                $result.url = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
+            }
         }
     }
+    
+    if ($Debug) {
+        Write-Host "Converted to: $($result.url)"
+    }
+    
+    return $result
 }
 
 # Function to get work items in "Ready for Implementation" state
