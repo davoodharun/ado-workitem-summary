@@ -247,7 +247,7 @@
                         Pull Requests
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table-container">
                             <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
@@ -295,7 +295,7 @@
                         Builds
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table-container">
                             <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
@@ -347,7 +347,7 @@
                         Work Items
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table-container">
                             <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
@@ -403,7 +403,7 @@
                         <!-- Pull Request Details -->
                         <div v-if="selectedItemType === 'pull-request' && selectedItem">
                             <h6>Title</h6>
-                            <p>{{ selectedItem['Title'] }}</p>
+                            <p class="text-break">{{ selectedItem['Title'] }}</p>
                             
                             <h6>Target Branch</h6>
                             <p>{{ selectedItem['Target Branch'] }}</p>
@@ -425,11 +425,11 @@
                             <p>{{ formatDate(selectedItem['Creation Date']) }}</p>
                             
                             <h6>Reviewers</h6>
-                            <p v-if="selectedItem['Reviewers']">{{ selectedItem['Reviewers'] }}</p>
+                            <p class="text-break" v-if="selectedItem['Reviewers']">{{ selectedItem['Reviewers'] }}</p>
                             <p v-else>No reviewers assigned</p>
                             
                             <h6>Linked Work Items</h6>
-                            <p v-if="selectedItem['Linked Work Items']">{{ selectedItem['Linked Work Items'] }}</p>
+                            <p class="text-break" v-if="selectedItem['Linked Work Items']">{{ selectedItem['Linked Work Items'] }}</p>
                             <p v-else>No linked work items</p>
                             
                             <h6>Azure DevOps Link</h6>
@@ -443,7 +443,7 @@
                         <!-- Build Details -->
                         <div v-if="selectedItemType === 'build' && selectedItem">
                             <h6>Title</h6>
-                            <p>{{ selectedItem['Title'] }}</p>
+                            <p class="text-break">{{ selectedItem['Title'] }}</p>
                             
                             <h6>Build Number</h6>
                             <p>{{ selectedItem['Build Number'] }}</p>
@@ -469,7 +469,7 @@
                             <p>{{ formatDate(selectedItem['Start Time']) }}</p>
                             
                             <h6>Linked Work Items</h6>
-                            <p v-if="selectedItem['Linked Work Items']">{{ selectedItem['Linked Work Items'] }}</p>
+                            <p class="text-break" v-if="selectedItem['Linked Work Items']">{{ selectedItem['Linked Work Items'] }}</p>
                             <p v-else>No linked work items</p>
                             
                             <h6>Azure DevOps Link</h6>
@@ -483,7 +483,7 @@
                         <!-- Work Item Details -->
                         <div v-if="selectedItemType === 'work-item' && selectedItem">
                             <h6>Title</h6>
-                            <p>{{ selectedItem.title }}</p>
+                            <p class="text-break">{{ selectedItem.title }}</p>
                             
                             <h6>State</h6>
                             <p>
@@ -509,7 +509,7 @@
                             <div v-if="selectedItem.comments && selectedItem.comments.length > 0">
                                 <div v-for="comment in selectedItem.comments" :key="comment.id" class="card mb-2">
                                     <div class="card-body">
-                                        <p class="card-text">{{ comment.text }}</p>
+                                        <p class="card-text text-break">{{ comment.text }}</p>
                                         <small class="text-muted">
                                             By {{ comment.createdBy }} on {{ formatDate(comment.createdDate) }}
                                         </small>
@@ -522,7 +522,7 @@
                             <div v-if="selectedItem.linked_items && selectedItem.linked_items.length > 0">
                                 <ul class="list-group">
                                     <li v-for="(item, index) in selectedItem.linked_items" :key="index" class="list-group-item">
-                                        <strong>{{ item.type }}:</strong> {{ item.title }}
+                                        <strong>{{ item.type }}:</strong> <span class="text-break">{{ item.title }}</span>
                                         <a v-if="item.url" :href="item.url" target="_blank" class="btn btn-sm btn-outline-primary float-end">
                                             <i class="bi bi-box-arrow-up-right"></i> View
                                         </a>

@@ -186,7 +186,18 @@ const app = createApp({
         
         const showDetails = (type, item) => {
             selectedItemType.value = type;
-            selectedItem.value = item;
+            
+            // Find the original, non-truncated item from the deploymentData
+            if (type === 'pull-request' && deploymentData.value && deploymentData.value['Pull Requests']) {
+                const originalItem = deploymentData.value['Pull Requests'].find(pr => pr['Pull Request ID'] === item['Pull Request ID']);
+                selectedItem.value = originalItem || item;
+            } else if (type === 'build' && deploymentData.value && deploymentData.value['Builds']) {
+                const originalItem = deploymentData.value['Builds'].find(build => build['Build ID'] === item['Build ID']);
+                selectedItem.value = originalItem || item;
+            } else {
+                selectedItem.value = item;
+            }
+            
             showModal.value = true;
             
             // Show the Bootstrap modal
@@ -197,7 +208,15 @@ const app = createApp({
         
         const showWorkItemDetails = (workItem) => {
             selectedItemType.value = 'work-item';
-            selectedItem.value = workItem;
+            
+            // Find the original, non-truncated work item from the deploymentData
+            if (deploymentData.value && deploymentData.value['Work Items']) {
+                const originalItem = deploymentData.value['Work Items'].find(wi => wi.id === workItem.id);
+                selectedItem.value = originalItem || workItem;
+            } else {
+                selectedItem.value = workItem;
+            }
+            
             showModal.value = true;
             
             // Show the Bootstrap modal

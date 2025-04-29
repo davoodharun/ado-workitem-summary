@@ -19,7 +19,6 @@ function Get-PullRequestDetails {
     param (
         [string]$OrganizationUrl,
         [string]$PersonalAccessToken,
-        [string]$ProjectName,
         [string]$RepositoryId,
         [string]$PullRequestId
     )
@@ -34,20 +33,13 @@ function Get-PullRequestDetails {
     
     try {
         $pullRequest = Invoke-RestMethod -Uri $pullRequestUrl -Method Get -Headers $headers
-        
+        $pullRequest.title
         # Get pull request reviewers (approvals)
-        $reviewersUrl = "$OrganizationUrl/_apis/git/repositories/$RepositoryId/pullrequests/$PullRequestId/reviewers?api-version=6.0"
-        $reviewers = Invoke-RestMethod -Uri $reviewersUrl -Method Get -Headers $headers
-        
-        # Add reviewers to the pull request object
-        $pullRequest | Add-Member -NotePropertyName 'reviewers' -NotePropertyValue $reviewers.value
-        
+  
         return $pullRequest
     }
     catch {
-        if ($Debug) {
-            Write-Host "Error getting pull request details: $_"
-        }
+        Write-Host "Error getting pull request details: $_"
         return $null
     }
 }
@@ -66,11 +58,12 @@ function Get-BuildDetails {
         'Content-Type' = 'application/json'
     }
     
-    $buildUrl = "$OrganizationUrl/$ProjectName/_apis/build/builds/$BuildId`?api-version=6.0"
+    $buildUrl = "$OrganizationUrl/EU-Change%20Governance/_apis/build/builds/`?deletedFilter=1&buildIds=$BuildId&api-version=6.0"
     
     try {
+        Write-Host "here2"
         $build = Invoke-RestMethod -Uri $buildUrl -Method Get -Headers $headers
-        return $build
+        return $build[0].value
     }
     catch {
         if ($Debug) {
@@ -126,14 +119,12 @@ function Convert-ToBrowserUrl {
         [string]$DefaultProjectName
     )
     
-    if ($Debug) {
-        Write-Host "Converting URL: $VstfsUrl"
-    }
     
     # Initialize variables
     $result = @{
         url = $VstfsUrl
         type = "Unknown"
+        details = @{}
     }
     
     # Extract IDs from vstfs:// URL based on different patterns
@@ -205,30 +196,87 @@ function Convert-ToBrowserUrl {
         "Pull Request" {
             if ($pullRequestId) {
                 # Get pull request details
-                $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -RepositoryId $repositoryId -PullRequestId $pullRequestId
-                
-                # Use project name and repository ID from the pull request details if available
-                $projectName = $DefaultProjectName
-                $repoId = $repositoryId
-                
-                if ($pullRequestDetails -and $pullRequestDetails.repository) {
-                    $projectName = $pullRequestDetails.repository.project.name
-                    $repoId = $pullRequestDetails.repository.id
+                try {
+                    $pullRequestDetails = Get-PullRequestDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -RepositoryId $repositoryId -PullRequestId $pullRequestId
+                    
+                    # Use project name and repository ID from the pull request details if available
+                    $projectName = $DefaultProjectName
+                    $repoId = $repositoryId
+                    if ($pullRequestDetails -and $pullRequestDetails.repository) {
+                        $projectName = $pullRequestDetails.repository.project.name
+                        $repoId = $pullRequestDetails.repository.id
+                       
+                    } else {
+                        Write-Host "Could not get project name and repository ID from pull request details"
+                    }
+                    
+                    # URL encode the project name and repository ID
+                    $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($projectName)
+                    $encodedRepoId = [System.Web.HttpUtility]::UrlEncode($repoId)
+                    
+                    # Construct browser-friendly URL for pull request
+                    $result.url = "$OrganizationUrl/$encodedProjectName/_git/$encodedRepoId/pullrequest/$pullRequestId"
+                    
+                    # Add pull request details if available
+    
+                    if ($pullRequestDetails) {
+                        $result.details = @{
+                            title = $pullRequestDetails.Title
+                            status = $pullRequestDetails.status
+                            sourceRefName = $pullRequestDetails.sourceRefName
+                            targetRefName = $pullRequestDetails.targetRefName
+                            createdBy = $pullRequestDetails.createdBy.displayName
+                            creationDate = $pullRequestDetails.creationDate
+                            reviewers = $pullRequestDetails.reviewers
+                        }
+                    } else {
+                        Write-Host "Pull request details not available, using default values"
+                        # Try to get repository information if pull request details are not available
+                        try {
+                            $repoUrl = "$OrganizationUrl/_apis/git/repositories/$repositoryId?api-version=6.0"
+                            Write-Host "Trying to get repository details from: $repoUrl"
+                            $repoDetails = Invoke-RestMethod -Uri $repoUrl -Method Get -Headers $headers
+                            
+                            if ($repoDetails) {
+                                $projectName = $repoDetails.project.name
+                                $repoId = $repoDetails.id
+                                Write-Host "Got project name: $projectName, repository ID: $repoId from repository details"
+                                
+                                # URL encode the project name and repository ID
+                                $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($projectName)
+                                $encodedRepoId = [System.Web.HttpUtility]::UrlEncode($repoId)
+                                
+                                # Update the URL with the correct project and repository
+                                $result.url = "$OrganizationUrl/$encodedProjectName/_git/$encodedRepoId/pullrequest/$pullRequestId"
+                            }
+                        } catch {
+                            Write-Host "Error getting repository details: $_"
+                        }
+                        
+                        # Provide default values if pull request details are not available
+                        $result.details = @{
+                            title = "Unknown Pull Request"
+                            status = "Unknown"
+                            sourceRefName = "Unknown"
+                            targetRefName = "Unknown"
+                            createdBy = "Unknown"
+                            creationDate = "Unknown"
+                            reviewers = @()
+                        }
+                    }
                 }
-                
-                # Construct browser-friendly URL for pull request
-                $result.url = "$OrganizationUrl/$projectName/_git/$repoId/pullrequest/$pullRequestId"
-                
-                # Add pull request details if available
-                if ($pullRequestDetails) {
+                catch {
+                    Write-Host "Error processing pull request: $_"
+                    
+                    # Provide default values if pull request details are not available
                     $result.details = @{
-                        title = $pullRequestDetails.title
-                        status = $pullRequestDetails.status
-                        sourceRefName = $pullRequestDetails.sourceRefName
-                        targetRefName = $pullRequestDetails.targetRefName
-                        createdBy = $pullRequestDetails.createdBy.displayName
-                        creationDate = $pullRequestDetails.creationDate
-                        reviewers = $pullRequestDetails.reviewers
+                        title = "Unknown Pull Request"
+                        status = "Unknown"
+                        sourceRefName = "Unknown"
+                        targetRefName = "Unknown"
+                        createdBy = "Unknown"
+                        creationDate = "Unknown"
+                        reviewers = @()
                     }
                 }
             }
@@ -237,9 +285,12 @@ function Convert-ToBrowserUrl {
             if ($buildId) {
                 # Get build details
                 $buildDetails = Get-BuildDetails -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $DefaultProjectName -BuildId $buildId
+                # URL encode the project name
+                $projectName = $buildDetails.project.name
+                $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($projectName)
                 
                 # Construct browser-friendly URL for build
-                $result.url = "$OrganizationUrl/$DefaultProjectName/_build/results?buildId=$buildId"
+                $result.url = "$OrganizationUrl/$encodedProjectName/_build/results?buildId=$buildId"
                 
                 # Add build details if available
                 if ($buildDetails) {
@@ -251,19 +302,38 @@ function Convert-ToBrowserUrl {
                         finishTime = $buildDetails.finishTime
                         requestedBy = $buildDetails.requestedBy.displayName
                     }
+                } else {
+                    # Provide default values if build details are not available
+                    $result.details = @{
+                        buildNumber = "Unknown"
+                        status = "Unknown"
+                        result = "Unknown"
+                        startTime = "Unknown"
+                        finishTime = "Unknown"
+                        requestedBy = "Unknown"
+                    }
                 }
             }
         }
         "Branch Reference" {
             if ($repositoryId -and $refName) {
+                # URL encode the project name and repository ID
+                $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($DefaultProjectName)
+                $encodedRepoId = [System.Web.HttpUtility]::UrlEncode($repositoryId)
+                $encodedRefName = [System.Web.HttpUtility]::UrlEncode($refName)
+                
                 # Construct browser-friendly URL for branch reference
-                $result.url = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/refs?filter=heads/$refName"
+                $result.url = "$OrganizationUrl/$encodedProjectName/_git/_apis/git/repositories/$encodedRepoId/refs?filter=heads/$encodedRefName"
             }
         }
         "Commit" {
             if ($repositoryId -and $commitId) {
+                # URL encode the project name and repository ID
+                $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($DefaultProjectName)
+                $encodedRepoId = [System.Web.HttpUtility]::UrlEncode($repositoryId)
+                
                 # Construct browser-friendly URL for commit
-                $result.url = "$OrganizationUrl/$DefaultProjectName/_git/_apis/git/repositories/$repositoryId/commits/$commitId"
+                $result.url = "$OrganizationUrl/$encodedProjectName/_git/_apis/git/repositories/$encodedRepoId/commits/$commitId"
             }
         }
     }
@@ -293,7 +363,7 @@ function Get-ReadyForImplementationItems {
 SELECT [System.Id], [System.Title], [System.State], [System.CreatedBy], [System.CreatedDate]
 FROM WorkItems
 WHERE [System.WorkItemType] = 'Change Request'
-AND [System.State] = 'Ready for Implementation'
+AND [System.State] = 'Implemented'
 AND [System.TeamProject] = '$ProjectName'
 "@
     }
@@ -309,7 +379,7 @@ AND [System.TeamProject] = '$ProjectName'
     }
     
     # Get detailed work item information
-    $workItemIds = $wiqlResponse.workItems.id -join ','
+    $workItemIds = $wiqlResponse.workItems[-20..-1].id -join ','
     $workItemsUrl = "$OrganizationUrl/$ProjectName/_apis/wit/workitems?ids=$workItemIds&fields=System.Id,System.Title,System.State,System.CreatedBy,System.CreatedDate&api-version=6.0"
     $workItems = Invoke-RestMethod -Uri $workItemsUrl -Method Get -Headers $headers
     
@@ -359,12 +429,11 @@ function Get-LinkedItems {
                 
                 # Convert vstfs:// URL to browser-friendly URL and get details
                 $result = Convert-ToBrowserUrl -VstfsUrl $relation.url -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -DefaultProjectName $ProjectName
-                
                 # Include all pull requests and builds without filtering by target branch
                 $linkedItems += @{
                     url = $result.url
                     type = $result.type
-                    title = $relation.attributes.name
+                    title = $result.details.title
                     details = $result.details
                 }
             }
@@ -391,8 +460,11 @@ function Get-DeploymentSummary {
     foreach ($workItem in $workItems) {
         $linkedItems = Get-LinkedItems -OrganizationUrl $OrganizationUrl -PersonalAccessToken $PersonalAccessToken -ProjectName $ProjectName -WorkItemId $workItem.id
         
+        # URL encode the project name
+        $encodedProjectName = [System.Web.HttpUtility]::UrlEncode($ProjectName)
+        
         # Create a browser-friendly URL for the work item
-        $workItemUrl = "$OrganizationUrl/$ProjectName/_workitems/edit/$($workItem.id)"
+        $workItemUrl = "$OrganizationUrl/$encodedProjectName/_workitems/edit/$($workItem.id)"
         
         $summary.work_items += @{
             id = $workItem.id
@@ -430,12 +502,12 @@ function Format-SummaryAsTable {
                 # Extract pull request details
                 $pullRequestId = $linkedItem.url -replace '.*/pullrequest/(\d+)$', '$1'
                 $pullRequestTitle = $linkedItem.title
-                $targetBranch = $linkedItem.details.targetRefName
-                $sourceBranch = $linkedItem.details.sourceRefName
-                $status = $linkedItem.details.status
-                $createdBy = $linkedItem.details.createdBy
-                $creationDate = $linkedItem.details.creationDate
-                $reviewers = $linkedItem.details.reviewers
+                $targetBranch = if ($linkedItem.details.targetRefName) { $linkedItem.details.targetRefName } else { "Unknown" }
+                $sourceBranch = if ($linkedItem.details.sourceRefName) { $linkedItem.details.sourceRefName } else { "Unknown" }
+                $status = if ($linkedItem.details.status) { $linkedItem.details.status } else { "Unknown" }
+                $createdBy = if ($linkedItem.details.createdBy) { $linkedItem.details.createdBy } else { "Unknown" }
+                $creationDate = if ($linkedItem.details.creationDate) { $linkedItem.details.creationDate } else { "Unknown" }
+                $reviewers = if ($linkedItem.details.reviewers) { $linkedItem.details.reviewers } else { @() }
                 $url = $linkedItem.url
                 
                 # Create a unique key for the pull request
@@ -464,11 +536,11 @@ function Format-SummaryAsTable {
                 # Extract build details
                 $buildId = $linkedItem.url -replace '.*buildId=(\d+)', '$1'
                 $buildTitle = $linkedItem.title
-                $buildNumber = $linkedItem.details.buildNumber
-                $status = $linkedItem.details.status
-                $result = $linkedItem.details.result
-                $requestedBy = $linkedItem.details.requestedBy
-                $startTime = $linkedItem.details.startTime
+                $buildNumber = if ($linkedItem.details.buildNumber) { $linkedItem.details.buildNumber } else { "Unknown" }
+                $status = if ($linkedItem.details.status) { $linkedItem.details.status } else { "Unknown" }
+                $result = if ($linkedItem.details.result) { $linkedItem.details.result } else { "Unknown" }
+                $requestedBy = if ($linkedItem.details.requestedBy) { $linkedItem.details.requestedBy } else { "Unknown" }
+                $startTime = if ($linkedItem.details.startTime) { $linkedItem.details.startTime } else { "Unknown" }
                 $url = $linkedItem.url
                 
                 # Create a unique key for the build
@@ -495,7 +567,7 @@ function Format-SummaryAsTable {
         }
     }
     
-    # Convert the dictionaries to arrays of PSCustomObjects
+    # Convert the dictionaries to arrays of PSCustomObjects for table display (truncated)
     $pullRequestTable = @()
     foreach ($key in $uniquePullRequests.Keys) {
         $pr = $uniquePullRequests[$key]
@@ -551,9 +623,67 @@ function Format-SummaryAsTable {
         }
     }
     
+    # Create non-truncated versions for JSON output
+    $pullRequestsJson = @()
+    foreach ($key in $uniquePullRequests.Keys) {
+        $pr = $uniquePullRequests[$key]
+        $linkedWorkItems = $pr['Linked Work Items'] -join "; "
+        
+        # Format reviewers
+        $reviewersList = @()
+        if ($pr['Reviewers']) {
+            foreach ($reviewer in $pr['Reviewers']) {
+                $vote = $reviewer.vote
+                $voteText = switch ($vote) {
+                    10 { "Approved" }
+                    5 { "Approved with suggestions" }
+                    0 { "No vote" }
+                    -5 { "Waiting on author" }
+                    -10 { "Rejected" }
+                    default { "No vote" }
+                }
+                $reviewersList += "$($reviewer.displayName) ($voteText)"
+            }
+        }
+        $reviewersText = $reviewersList -join "; "
+        
+        $pullRequestsJson += [PSCustomObject]@{
+            'Pull Request ID' = $pr['Pull Request ID']
+            'Title' = $pr['Title']
+            'Target Branch' = $pr['Target Branch']
+            'Source Branch' = $pr['Source Branch']
+            'Status' = $pr['Status']
+            'Created By' = $pr['Created By']
+            'Creation Date' = $pr['Creation Date']
+            'Reviewers' = $reviewersText
+            'URL' = $pr['URL']
+            'Linked Work Items' = $linkedWorkItems
+        }
+    }
+    
+    $buildsJson = @()
+    foreach ($key in $uniqueBuilds.Keys) {
+        $build = $uniqueBuilds[$key]
+        $linkedWorkItems = $build['Linked Work Items'] -join "; "
+        
+        $buildsJson += [PSCustomObject]@{
+            'Build ID' = $build['Build ID']
+            'Build Number' = $build['Build Number']
+            'Title' = $build['Title']
+            'Status' = $build['Status']
+            'Result' = $build['Result']
+            'Requested By' = $build['Requested By']
+            'Start Time' = $build['Start Time']
+            'URL' = $build['URL']
+            'Linked Work Items' = $linkedWorkItems
+        }
+    }
+    
     return @{
         'Pull Requests' = $pullRequestTable
         'Builds' = $buildTable
+        'Pull Requests Json' = $pullRequestsJson
+        'Builds Json' = $buildsJson
     }
 }
 
@@ -572,8 +702,8 @@ try {
     
     # Save the summary as JSON for the web app
     $jsonOutput = @{
-        'Pull Requests' = $tables['Pull Requests']
-        'Builds' = $tables['Builds']
+        'Pull Requests' = $tables['Pull Requests Json']
+        'Builds' = $tables['Builds Json']
         'Work Items' = $summary.work_items
     }
     
