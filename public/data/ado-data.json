@@ -18,6 +18,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NGNhNDBlMzQtMDE3ZS03YjYwLThlMWMtZWNmNTU4MGZjN2Fk",
         "descriptor": "aad.NGNhNDBlMzQtMDE3ZS03YjYwLThlMWMtZWNmNTU4MGZjN2Fk"
       },
+      "dateToProd": "2025-04-29T12:00:00Z",
+      "projectName": "Customer Hardening and Resilience ",
+      "impactedTechnicalAreas": "Azure DB",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -107,6 +110,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0",
         "descriptor": "aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0"
       },
+      "dateToProd": "2025-04-22T12:00:00Z",
+      "projectName": "SPP MP",
+      "impactedTechnicalAreas": "ElasticPath",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -149,6 +155,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YjUyMzhkOWQtZGM2ZC03ZmUzLThhMDktMzk2ZjY4OTU1Yzdi",
         "descriptor": "aad.YjUyMzhkOWQtZGM2ZC03ZmUzLThhMDktMzk2ZjY4OTU1Yzdi"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "CFP MMA",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": []
     },
     {
@@ -169,6 +178,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.ODg1NjhiYTQtMjFiNC03YjBmLWI5ZjItZTlhMmJjZWIzNDVh",
         "descriptor": "aad.ODg1NjhiYTQtMjFiNC03YjBmLWI5ZjItZTlhMmJjZWIzNDVh"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "EU-Change Governance",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -298,6 +310,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0",
         "descriptor": "aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0"
       },
+      "dateToProd": "2025-04-17T12:00:00Z",
+      "projectName": "SPP MP",
+      "impactedTechnicalAreas": "ElasticPath",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Forward",
@@ -356,6 +371,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0",
         "descriptor": "aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0"
       },
+      "dateToProd": "2025-04-22T12:00:00Z",
+      "projectName": "OMS Support / ITSPP",
+      "impactedTechnicalAreas": "APIM",
       "relations": []
     },
     {
@@ -376,6 +394,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0",
         "descriptor": "aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0"
       },
+      "dateToProd": "2025-04-08T12:00:00Z",
+      "projectName": "ITSPP",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -553,6 +574,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0",
         "descriptor": "aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0"
       },
+      "dateToProd": "2025-04-08T12:00:00Z",
+      "projectName": "SPP MP",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -582,6 +606,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MjA1OTQ5YzQtMDU2MS03ZjE1LWFlMjEtNzU5NzgyNWFiZjVi",
         "descriptor": "aad.MjA1OTQ5YzQtMDU2MS03ZjE1LWFlMjEtNzU5NzgyNWFiZjVi"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening",
+      "impactedTechnicalAreas": "APIM;Azure/Web UI;Other",
       "relations": []
     },
     {
@@ -602,6 +629,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening and Resilience",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -667,6 +697,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YmQzZGY3MTQtOTBkNy03NjBlLTg2ZDYtM2YyNjQ3MjViZTJh",
         "descriptor": "aad.YmQzZGY3MTQtOTBkNy03NjBlLTg2ZDYtM2YyNjQ3MjViZTJh"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening & Resilience",
+      "impactedTechnicalAreas": "Other",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -768,6 +801,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy",
         "descriptor": "aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening",
+      "impactedTechnicalAreas": "Other",
       "relations": []
     },
     {
@@ -788,6 +824,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy",
         "descriptor": "aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "LCS MMA",
+      "impactedTechnicalAreas": "Other",
       "relations": []
     },
     {
@@ -808,6 +847,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0",
         "descriptor": "aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "GaStar Enhancement Project",
+      "impactedTechnicalAreas": "Azure/Web UI;Other",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -903,6 +945,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy",
         "descriptor": "aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -932,6 +977,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy",
         "descriptor": "aad.YTIwNjdlNmEtMjRhMi03NjdiLTgyOWUtYThiZGZhOGVmOGQy"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Hardening",
+      "impactedTechnicalAreas": "Other",
       "relations": []
     },
     {
@@ -952,6 +1000,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0",
         "descriptor": "aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0"
       },
+      "dateToProd": "2025-04-08T12:00:00Z",
+      "projectName": "CFP ISUM",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1045,6 +1096,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.ODFlM2EyNzYtZjM4NC03ZGY4LTlkMGQtZmVmMmNiOTBhYjZi",
         "descriptor": "aad.ODFlM2EyNzYtZjM4NC03ZGY4LTlkMGQtZmVmMmNiOTBhYjZi"
       },
+      "dateToProd": "2025-03-25T12:00:00Z",
+      "projectName": "Boomi Maintenance",
+      "impactedTechnicalAreas": "Other",
       "relations": []
     },
     {
@@ -1065,6 +1119,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.Yzk4N2NiOWQtMmU4Zi03YzNjLThjM2YtMDk1MGVjMmUyYjhj",
         "descriptor": "aad.Yzk4N2NiOWQtMmU4Zi03YzNjLThjM2YtMDk1MGVjMmUyYjhj"
       },
+      "dateToProd": "2025-03-27T12:00:00Z",
+      "projectName": "N/A",
+      "impactedTechnicalAreas": "TIBCO",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1095,6 +1152,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.ZTk2MGU1NWItYzdiZS03MmQxLWE2YWItNmYyMzBlZTIzNzkz",
         "descriptor": "aad.ZTk2MGU1NWItYzdiZS03MmQxLWE2YWItNmYyMzBlZTIzNzkz"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "DIgital Prod Support",
+      "impactedTechnicalAreas": "APIM;Azure/Web UI",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -1416,6 +1476,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NmNiYzRmYTctZTQ4Ny03YWQ1LTllNmEtYjYxNGRmNjQ2ZDA5",
         "descriptor": "aad.NmNiYzRmYTctZTQ4Ny03YWQ1LTllNmEtYjYxNGRmNjQ2ZDA5"
       },
+      "dateToProd": "2025-04-08T12:00:00Z",
+      "projectName": "Customer Flight Path - Manage Energy Use",
+      "impactedTechnicalAreas": "EUSM",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1445,6 +1508,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MWIxNjhmZDEtZjJmMC03NzRkLWJmZjEtNjM0YWJiOGQ3NjU3",
         "descriptor": "aad.MWIxNjhmZDEtZjJmMC03NzRkLWJmZjEtNjM0YWJiOGQ3NjU3"
       },
+      "dateToProd": "2025-04-15T12:00:00Z",
+      "projectName": "Digital Support",
+      "impactedTechnicalAreas": "TIBCO",
       "relations": []
     },
     {
@@ -1465,6 +1531,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0",
         "descriptor": "aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "CFP ISUM",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "AttachedFile",
@@ -1499,6 +1568,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj",
         "descriptor": "aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "CIS Transformation Phase II",
+      "impactedTechnicalAreas": "Azure/Web UI;Fusion;TIBCO;IWS",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1557,6 +1629,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.ODg1NjhiYTQtMjFiNC03YjBmLWI5ZjItZTlhMmJjZWIzNDVh",
         "descriptor": "aad.ODg1NjhiYTQtMjFiNC03YjBmLWI5ZjItZTlhMmJjZWIzNDVh"
       },
+      "dateToProd": "2025-03-18T12:00:00Z",
+      "projectName": "DevSecOps",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -1723,6 +1798,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj",
         "descriptor": "aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "CIS Transformation Phase II",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1784,6 +1862,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy",
         "descriptor": "aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "CFP MMA",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -1817,6 +1898,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-03-10T12:00:00Z",
+      "projectName": "DPS",
+      "impactedTechnicalAreas": "Other",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1846,6 +1930,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OWMxOWFjNmQtOTM3Yi03ZjE3LTk3ODAtMGNhMDQ1NmZjYzk1",
         "descriptor": "aad.OWMxOWFjNmQtOTM3Yi03ZjE3LTk3ODAtMGNhMDQ1NmZjYzk1"
       },
+      "dateToProd": "2025-03-12T12:00:00Z",
+      "projectName": "EU Mobile Apps",
+      "impactedTechnicalAreas": "Mobile",
       "relations": []
     },
     {
@@ -1866,6 +1953,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-03-04T12:00:00Z",
+      "projectName": "DPS",
+      "impactedTechnicalAreas": "Other",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -1904,6 +1994,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YmUyNmU5YjEtZGZlYS03ZjM1LTg2YmUtZGQwNzE0NzM5Nzg3",
         "descriptor": "aad.YmUyNmU5YjEtZGZlYS03ZjM1LTg2YmUtZGQwNzE0NzM5Nzg3"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "EU-Change Governance",
+      "impactedTechnicalAreas": "TIBCO",
       "relations": [
         {
           "rel": "AttachedFile",
@@ -1967,6 +2060,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0",
         "descriptor": "aad.MDNlNzlmZjItOWVlNC03NjhmLThjODktODVjY2Y2N2U3NDQ0"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "CFP ISUM",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -2078,6 +2174,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTRlNzU1YWQtMTMzMi03YzdmLThlMjUtNTVjY2IxNTFiYzQy",
         "descriptor": "aad.YTRlNzU1YWQtMTMzMi03YzdmLThlMjUtNTVjY2IxNTFiYzQy"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "MidMod",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -2123,6 +2222,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MzA1YzQ5MGMtM2UxMS03YzMxLTk1MjAtNmRkMjZkOTFhYTlj",
         "descriptor": "aad.MzA1YzQ5MGMtM2UxMS03YzMxLTk1MjAtNmRkMjZkOTFhYTlj"
       },
+      "dateToProd": "2025-04-11T12:00:00Z",
+      "projectName": "Customer Hardening",
+      "impactedTechnicalAreas": "Other",
       "relations": []
     },
     {
@@ -2143,6 +2245,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NmNiYzRmYTctZTQ4Ny03YWQ1LTllNmEtYjYxNGRmNjQ2ZDA5",
         "descriptor": "aad.NmNiYzRmYTctZTQ4Ny03YWQ1LTllNmEtYjYxNGRmNjQ2ZDA5"
       },
+      "dateToProd": "2025-04-24T12:00:00Z",
+      "projectName": "Customer Flight Path - Manage Energy Use",
+      "impactedTechnicalAreas": "APIM;Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -2244,6 +2349,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-03-18T12:00:00Z",
+      "projectName": "Customer Hardening and Resilience",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -2285,6 +2393,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OWMxOWFjNmQtOTM3Yi03ZjE3LTk3ODAtMGNhMDQ1NmZjYzk1",
         "descriptor": "aad.OWMxOWFjNmQtOTM3Yi03ZjE3LTk3ODAtMGNhMDQ1NmZjYzk1"
       },
+      "dateToProd": "2025-02-28T12:00:00Z",
+      "projectName": "MMA",
+      "impactedTechnicalAreas": "Mobile",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -2314,6 +2425,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0",
         "descriptor": "aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "Digital Prod Support",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -3303,6 +3417,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0",
         "descriptor": "aad.YTRiNzAwMGItZTk1NS03ZmY5LWFhOTMtYTk5YWYzMTUyOGM0"
       },
+      "dateToProd": "2025-04-03T12:00:00Z",
+      "projectName": "SPP MP",
+      "impactedTechnicalAreas": "Azure/Web UI;Elastic PAth",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Forward",
@@ -3361,6 +3478,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0",
         "descriptor": "aad.NTkxOWNmNDctMzg0Yy03M2JjLTg0OTgtOGVkMDk4M2FlZWY0"
       },
+      "dateToProd": "2025-03-18T12:00:00Z",
+      "projectName": "ExelonCorp News Release Feed Enhancement",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -3478,6 +3598,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTllZGE0ODktODgzZi03YjFiLTllMTYtYmQyYTBlYTUxNmUx",
         "descriptor": "aad.OTllZGE0ODktODgzZi03YjFiLTllMTYtYmQyYTBlYTUxNmUx"
       },
+      "dateToProd": "2025-02-27T12:00:00Z",
+      "projectName": "MMA",
+      "impactedTechnicalAreas": "Mobile",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -3507,6 +3630,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "Customer Hardening and Resilience",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -3892,6 +4018,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NGNhNDBlMzQtMDE3ZS03YjYwLThlMWMtZWNmNTU4MGZjN2Fk",
         "descriptor": "aad.NGNhNDBlMzQtMDE3ZS03YjYwLThlMWMtZWNmNTU4MGZjN2Fk"
       },
+      "dateToProd": "2025-02-27T12:00:00Z",
+      "projectName": "Customer Hardening and Resiliency",
+      "impactedTechnicalAreas": "Other",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -3993,6 +4122,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.ZDBmMmUxMjAtMzljMC03Y2U1LWE5MWMtMzBkOWQ2YjNhNGE4",
         "descriptor": "aad.ZDBmMmUxMjAtMzljMC03Y2U1LWE5MWMtMzBkOWQ2YjNhNGE4"
       },
+      "dateToProd": "2025-02-27T12:00:00Z",
+      "projectName": "Customer Flight Path Outage",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": []
     },
     {
@@ -4013,6 +4145,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj",
         "descriptor": "aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj"
       },
+      "dateToProd": "2025-02-13T12:00:00Z",
+      "projectName": "IT SPP - CDWeb",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "System.LinkTypes.Related",
@@ -4186,6 +4321,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.YmUyNmU5YjEtZGZlYS03ZjM1LTg2YmUtZGQwNzE0NzM5Nzg3",
         "descriptor": "aad.YmUyNmU5YjEtZGZlYS03ZjM1LTg2YmUtZGQwNzE0NzM5Nzg3"
       },
+      "dateToProd": "2025-02-27T12:00:00Z",
+      "projectName": "IT SPP",
+      "impactedTechnicalAreas": "TIBCO",
       "relations": [
         {
           "rel": "AttachedFile",
@@ -4220,6 +4358,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy",
         "descriptor": "aad.NjdmYzA0MmQtOWYyNy03YzdmLTk0ODItZDUwNzEzZGRmM2Iy"
       },
+      "dateToProd": "2025-02-13T12:00:00Z",
+      "projectName": "CFP MMA",
+      "impactedTechnicalAreas": "Azure/Web UI",
       "relations": [
         {
           "rel": "ArtifactLink",
@@ -4313,6 +4454,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.MzFkZWQxOWMtNjRhNi03NzFmLTljZTAtMmVlNmU5ZTExOTNj",
         "descriptor": "aad.MzFkZWQxOWMtNjRhNi03NzFmLTljZTAtMmVlNmU5ZTExOTNj"
       },
+      "dateToProd": "2025-02-27T12:00:00Z",
+      "projectName": "EU-Change Governance",
+      "impactedTechnicalAreas": "TIBCO",
       "relations": []
     },
     {
@@ -4333,6 +4477,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw",
         "descriptor": "aad.OTdhZjZiNzUtNjVlMC03MTI4LTljN2YtYzY5NDQxYjg2MWEw"
       },
+      "dateToProd": "2025-04-01T12:00:00Z",
+      "projectName": "EU-Change Governance",
+      "impactedTechnicalAreas": "APIM",
       "relations": [
         {
           "rel": "System.LinkTypes.Hierarchy-Reverse",
@@ -4474,6 +4621,9 @@
         "imageUrl": "https://dev.azure.com/exelontfs/_apis/GraphProfile/MemberAvatars/aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj",
         "descriptor": "aad.NDc3MTEzZTAtODFmMC03ZmVhLWE4MDEtYzFmZDdjNGYzMmZj"
       },
+      "dateToProd": "2025-02-06T12:00:00Z",
+      "projectName": "CIS Transformation Phase II",
+      "impactedTechnicalAreas": "Fusion",
       "relations": []
     }
   ],

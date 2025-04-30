@@ -336,7 +336,7 @@ export default function PullRequestsTab({ pullRequests, workItems }) {
               ))}
           </Wrap>
           {targetBranchFilters.length > 0 && (
-            <Button size="sm" variant="outline" onClick={clearFilters} width="fit-content">
+            <Button size="sm" variant="outline" onClick={clearFilters} width="fit-content" color="white">
               Clear filters ({targetBranchFilters.length})
             </Button>
           )}
@@ -473,7 +473,7 @@ export default function PullRequestsTab({ pullRequests, workItems }) {
                         return (
                           <Tag key={workItemId} colorScheme="blue" size="md">
                             <TagLabel>
-                              <Link href={`https://dev.azure.com/organization/EU-Change%20Governance/_workitems/edit/${workItemId}`} isExternal>
+                              <Link href={`https://dev.azure.com/exelontfs/EU-Change%20Governance/_workitems/edit/${workItemId}`} isExternal>
                                 #{workItemId} {workItem ? workItem.title : ''}
                               </Link>
                             </TagLabel>
@@ -494,7 +494,7 @@ export default function PullRequestsTab({ pullRequests, workItems }) {
               >
                 <Button colorScheme="blue">View in Azure DevOps</Button>
               </Link>
-              <Button variant="outline" onClick={onClose}>Close</Button>
+              <Button variant="outline" onClick={onClose} color="white">Close</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

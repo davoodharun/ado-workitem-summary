@@ -72,6 +72,19 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
           ? (b.technicalLead?.displayName || '').toLowerCase() 
           : (b.technicalLead || '').toLowerCase();
         break;
+      case 'dateToProd':
+        // For date fields, use timestamps for comparison or empty string if not available
+        aValue = a.dateToProd ? new Date(a.dateToProd).getTime() : 0;
+        bValue = b.dateToProd ? new Date(b.dateToProd).getTime() : 0;
+        break;
+      case 'projectName':
+        aValue = (a.projectName || '').toLowerCase();
+        bValue = (b.projectName || '').toLowerCase();
+        break;
+      case 'impactedTechnicalAreas':
+        aValue = (a.impactedTechnicalAreas || '').toLowerCase();
+        bValue = (b.impactedTechnicalAreas || '').toLowerCase();
+        break;
       case 'createdDate':
         aValue = new Date(a.createdDate).getTime();
         bValue = new Date(b.createdDate).getTime();
@@ -115,6 +128,7 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
 
   // Format date to be more readable
   const formatDate = (dateString) => {
+    if (!dateString) return 'Not Set';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -180,6 +194,69 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
     onOpen();
   }
   
+  // Function to convert pull request URL to browser-accessible URL
+  const getProperPRUrl = (pr) => {
+    if (!pr) return '#';
+    
+    const orgName = 'exelontfs';
+    
+    // If we have project and repository names, use them
+    if (pr.projectName && pr.repositoryName) {
+      return `https://dev.azure.com/${orgName}/${pr.projectName}/_git/${pr.repositoryName}/pullrequest/${pr.id}`;
+    }
+    
+    // Otherwise, handle different URL formats
+    if (pr.url) {
+      // Handle vstfs URLs (format: vstfs:///Git/PullRequestId/guid%2Fguid%2FprId)
+      if (pr.url.startsWith('vstfs:///Git/PullRequestId/')) {
+        try {
+          // Extract the PR ID
+          const parts = pr.url.split('%2F');
+          if (parts.length > 0) {
+            const prId = parts[parts.length - 1]; // Last part contains PR ID
+            return `https://dev.azure.com/${orgName}/_git/pullrequest/${prId}`;
+          }
+        } catch (e) {
+          console.error('Error parsing vstfs URL:', e);
+        }
+        
+        // Fallback - just use the PR ID
+        return `https://dev.azure.com/${orgName}/_git/pullrequest/${pr.id}`;
+      }
+      
+      // Handle standard vsts URLs
+      if (pr.url.startsWith('vsts://')) {
+        try {
+          // Extract components from the URL
+          const parts = pr.url.split('/');
+          
+          // The format is usually vsts://organization/project/repo/pullrequest/id
+          const organization = parts[2] || 'exelontfs';
+          const project = parts[3] || '';
+          const repo = parts[4] || '';
+          
+          // Generate a browser-accessible URL
+          if (project && repo) {
+            return `https://dev.azure.com/${organization}/${project}/_git/${repo}/pullrequest/${pr.id}`;
+          } else {
+            // Fallback if we don't have project/repo
+            return `https://dev.azure.com/${organization}/_git/pullrequest/${pr.id}`;
+          }
+        } catch (e) {
+          console.error('Error parsing vsts URL:', e);
+        }
+      }
+      
+      // If it's already a browser URL, return it as is
+      if (pr.url.startsWith('http')) {
+        return pr.url;
+      }
+    }
+    
+    // Default fallback
+    return `https://dev.azure.com/${orgName}/_git/pullrequest/${pr.id}`;
+  }
+  
   return (
     <Box>
       <Heading size="md" mb={4}>Change Request Work Items</Heading>
@@ -214,6 +291,15 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
             <Th cursor="pointer" onClick={() => requestSort('technicalLead')}>
               Technical Lead {getSortIcon('technicalLead')}
             </Th>
+            <Th cursor="pointer" onClick={() => requestSort('dateToProd')}>
+              Date to PROD {getSortIcon('dateToProd')}
+            </Th>
+            <Th cursor="pointer" onClick={() => requestSort('projectName')}>
+              Project Name {getSortIcon('projectName')}
+            </Th>
+            <Th cursor="pointer" onClick={() => requestSort('impactedTechnicalAreas')}>
+              Impacted Areas {getSortIcon('impactedTechnicalAreas')}
+            </Th>
             <Th cursor="pointer" onClick={() => requestSort('createdDate')}>
               Created Date {getSortIcon('createdDate')}
             </Th>
@@ -245,6 +331,9 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
                       item.technicalLead) : 
                     'Not Assigned'}
                 </Td>
+                <Td>{formatDate(item.dateToProd)}</Td>
+                <Td>{item.projectName || 'Not Specified'}</Td>
+                <Td>{item.impactedTechnicalAreas || 'Not Specified'}</Td>
                 <Td>{formatDate(item.createdDate)}</Td>
                 <Td>{countLinkedItems(item)}</Td>
                 <Td>
@@ -256,7 +345,7 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
             ))
           ) : (
             <Tr>
-              <Td colSpan={7} textAlign="center">No work items found</Td>
+              <Td colSpan={10} textAlign="center">No work items found</Td>
             </Tr>
           )}
         </Tbody>
@@ -293,6 +382,21 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
                 </Flex>
                 
                 <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="bold">Date to PROD:</Text>
+                  <Text>{formatDate(selectedItem.dateToProd)}</Text>
+                </Flex>
+                
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="bold">Project Name:</Text>
+                  <Text>{selectedItem.projectName || 'Not Specified'}</Text>
+                </Flex>
+                
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="bold">Impacted Areas:</Text>
+                  <Text>{selectedItem.impactedTechnicalAreas || 'Not Specified'}</Text>
+                </Flex>
+                
+                <Flex justify="space-between" mb={2}>
                   <Text fontWeight="bold">Created Date:</Text>
                   <Text>{formatDate(selectedItem.createdDate)}</Text>
                 </Flex>
@@ -316,7 +420,7 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
                         {getLinkedPullRequests(selectedItem.id).map(pr => (
                           <Tr key={pr.id}>
                             <Td>
-                              <Link href={pr.url} isExternal color="blue.500">
+                              <Link href={getProperPRUrl(pr)} isExternal color="blue.500">
                                 {pr.id}
                               </Link>
                             </Td>
@@ -353,7 +457,7 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
                         {getLinkedBuilds(selectedItem.id).map(build => (
                           <Tr key={build.id}>
                             <Td>
-                              <Link href={build.url} isExternal color="blue.500">
+                              <Link href={build.url || `https://dev.azure.com/exelontfs/_build/results?buildId=${build.id}`} isExternal color="blue.500">
                                 {build.id}
                               </Link>
                             </Td>
@@ -389,7 +493,7 @@ export default function WorkItemsTab({ workItems, pullRequests, builds }) {
               >
                 <Button colorScheme="blue">View in Azure DevOps</Button>
               </Link>
-              <Button variant="outline" onClick={onClose}>Close</Button>
+              <Button variant="outline" onClick={onClose} color="white">Close</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

@@ -16,6 +16,18 @@ const theme = extendTheme({
   },
   colors: {
     // Add custom colors here if needed
+  },
+  components: {
+    Button: {
+      variants: {
+        outline: {
+          color: 'white',
+          _hover: {
+            color: 'white'
+          }
+        }
+      }
+    }
   }
 })
 

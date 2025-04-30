@@ -12,7 +12,7 @@ export default function Document() {
       </Head>
       <body>
         {/* Set the initial color mode on the server */}
-        <ColorModeScript initialColorMode="dark" />
+        <ColorModeScript initialColorMode={theme.config ? theme.config.initialColorMode : 'dark'} />
         <Main />
         <NextScript />
       </body>

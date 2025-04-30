@@ -85,6 +85,10 @@ function useSampleData() {
         "title": "Update authentication service",
         "state": "Implemented",
         "createdDate": "2023-10-15T08:30:00.000Z",
+        "technicalLead": "Jane Smith",
+        "dateToProd": "2023-11-01T00:00:00.000Z",
+        "projectName": "Authentication Service Update",
+        "impactedTechnicalAreas": "Security, Authentication, API",
         "relations": [
           {
             "rel": "ArtifactLink",
@@ -107,6 +111,10 @@ function useSampleData() {
         "title": "Fix critical bug in payment system",
         "state": "Implemented",
         "createdDate": "2023-10-16T09:45:00.000Z",
+        "technicalLead": "John Doe",
+        "dateToProd": "2023-10-20T00:00:00.000Z",
+        "projectName": "Payment Services",
+        "impactedTechnicalAreas": "Checkout, Payment Processing, Database",
         "relations": [
           {
             "rel": "ArtifactLink",
@@ -129,6 +137,10 @@ function useSampleData() {
         "title": "Implement new dashboard feature",
         "state": "In Progress",
         "createdDate": "2023-10-17T11:20:00.000Z",
+        "technicalLead": "Mike Johnson",
+        "dateToProd": null,
+        "projectName": "User Dashboard",
+        "impactedTechnicalAreas": "Frontend, Analytics, Reporting",
         "relations": [
           {
             "rel": "ArtifactLink",
@@ -316,22 +328,44 @@ async function fetchData() {
           
           // Log available fields for the first work item to help identify custom field names
           if (workItemIds.indexOf(workItemId) === 0) {
-            console.log("Available fields for work item:");
+            console.log("==========================================");
+            console.log("AVAILABLE FIELDS FOR WORK ITEM (DEBUGGING):");
+            console.log("==========================================");
+            
+            // First, log all field names for easy viewing
+            const allFields = Object.keys(workItem.fields).sort();
+            console.log("All field names:", allFields.join(", "));
+            
+            // Specific check for our target field names
+            console.log("Looking for specific fields:");
+            console.log("- DatetoPROD fields:", allFields.filter(f => f.includes('DatetoPROD') || f.includes('PROD') || f.toLowerCase().includes('prod')));
+            console.log("- Project Name fields:", allFields.filter(f => f.includes('Project') || f.toLowerCase().includes('project')));
+            console.log("- Impacted Areas fields:", allFields.filter(f => f.includes('Impact') || f.toLowerCase().includes('impact') || f.includes('Area') || f.toLowerCase().includes('area')));
+            
+            // Then log details for each field
             Object.keys(workItem.fields).forEach(fieldName => {
               const value = workItem.fields[fieldName];
               const valueType = typeof value;
               console.log(`  ${fieldName}: ${valueType}`);
               
-              // Log more details for potential Technical Lead fields
+              // Log more details for our key fields of interest
+              const fieldNameLower = fieldName.toLowerCase();
               if (
-                fieldName.includes('Lead') || 
-                fieldName.includes('Assigned') || 
-                fieldName.includes('Owner') || 
+                fieldNameLower.includes('lead') || 
+                fieldNameLower.includes('assign') || 
+                fieldNameLower.includes('owner') || 
+                fieldNameLower.includes('date') || 
+                fieldNameLower.includes('prod') || 
+                fieldNameLower.includes('project') || 
+                fieldNameLower.includes('technical') || 
+                fieldNameLower.includes('impact') || 
+                fieldNameLower.includes('area') ||
                 (valueType === 'object' && value && value.displayName)
               ) {
-                console.log(`    Details for ${fieldName}:`, JSON.stringify(value, null, 2));
+                console.log(`    Details for ${fieldName}: ${JSON.stringify(value, null, 2)}`);
               }
             });
+            console.log("==========================================");
           }
           
           // Try different possible field names for Technical Lead
@@ -350,6 +384,33 @@ async function fetchData() {
             state: workItem.fields && workItem.fields['System.State'] ? workItem.fields['System.State'] : 'Unknown State',
             createdDate: workItem.fields && workItem.fields['System.CreatedDate'] ? workItem.fields['System.CreatedDate'] : new Date().toISOString(),
             technicalLead: technicalLeadField || 'Not Assigned',
+            // Add new custom fields
+            dateToProd: workItem.fields && (
+              workItem.fields['DatetoPROD'] || 
+              workItem.fields['Custom.DatetoPROD'] || 
+              workItem.fields['Date to PROD'] || 
+              workItem.fields['Microsoft.VSTS.Scheduling.DateToProd'] || 
+              workItem.fields['Exelon.DateToPROD'] ||
+              workItem.fields['Custom.DateToProd'] || 
+              workItem.fields['DateToPROD'] ||
+              workItem.fields['DateToProd']
+            ),
+            projectName: workItem.fields && (
+              workItem.fields['Custom.ProjectName'] || 
+              workItem.fields['System.TeamProject'] || 
+              workItem.fields['Exelon.ProjectName'] ||
+              workItem.fields['ProjectName'] ||
+              workItem.fields['Project Name']
+            ),
+            impactedTechnicalAreas: workItem.fields && (
+              workItem.fields['Custom.ImpactedAreas'] || 
+              workItem.fields['Impacted Areas'] || 
+              workItem.fields['Exelon.ImpactedAreas'] ||
+              workItem.fields['ImpactedAreas'] ||
+              workItem.fields['Custom.ImpactedTechnicalAreas'] || 
+              workItem.fields['Exelon.ImpactedTechnicalAreas'] ||
+              workItem.fields['ImpactedTechnicalAreas']
+            ),
             relations: workItem.relations || []
           };
           
