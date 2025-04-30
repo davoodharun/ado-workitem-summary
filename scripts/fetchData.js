@@ -322,51 +322,6 @@ async function fetchData() {
           }
           
           console.log(`Successfully retrieved work item ${workItemId}: ${workItem.fields['System.Title']}`);
-          if(workItemId === 2304574) {
-            console.log("here")
-          }
-          
-          // Log available fields for the first work item to help identify custom field names
-          if (workItemIds.indexOf(workItemId) === 0) {
-            console.log("==========================================");
-            console.log("AVAILABLE FIELDS FOR WORK ITEM (DEBUGGING):");
-            console.log("==========================================");
-            
-            // First, log all field names for easy viewing
-            const allFields = Object.keys(workItem.fields).sort();
-            console.log("All field names:", allFields.join(", "));
-            
-            // Specific check for our target field names
-            console.log("Looking for specific fields:");
-            console.log("- DatetoPROD fields:", allFields.filter(f => f.includes('DatetoPROD') || f.includes('PROD') || f.toLowerCase().includes('prod')));
-            console.log("- Project Name fields:", allFields.filter(f => f.includes('Project') || f.toLowerCase().includes('project')));
-            console.log("- Impacted Areas fields:", allFields.filter(f => f.includes('Impact') || f.toLowerCase().includes('impact') || f.includes('Area') || f.toLowerCase().includes('area')));
-            
-            // Then log details for each field
-            Object.keys(workItem.fields).forEach(fieldName => {
-              const value = workItem.fields[fieldName];
-              const valueType = typeof value;
-              console.log(`  ${fieldName}: ${valueType}`);
-              
-              // Log more details for our key fields of interest
-              const fieldNameLower = fieldName.toLowerCase();
-              if (
-                fieldNameLower.includes('lead') || 
-                fieldNameLower.includes('assign') || 
-                fieldNameLower.includes('owner') || 
-                fieldNameLower.includes('date') || 
-                fieldNameLower.includes('prod') || 
-                fieldNameLower.includes('project') || 
-                fieldNameLower.includes('technical') || 
-                fieldNameLower.includes('impact') || 
-                fieldNameLower.includes('area') ||
-                (valueType === 'object' && value && value.displayName)
-              ) {
-                console.log(`    Details for ${fieldName}: ${JSON.stringify(value, null, 2)}`);
-              }
-            });
-            console.log("==========================================");
-          }
           
           // Try different possible field names for Technical Lead
           const technicalLeadField = 
@@ -557,7 +512,6 @@ async function fetchData() {
                 }
                 
                 if (isBuild) {
-                  console.log(`Found build relation in URL: ${relation.url}`);
                   try {
                     // Extract build ID from URL
                     let buildId = null;
@@ -568,7 +522,6 @@ async function fetchData() {
                       // These URLs use format: vstfs:///Build/Build/buildId
                       const parts = relation.url.split('/');
                       buildId = parseInt(parts[parts.length - 1]);
-                      console.log(`Extracted build ID from vstfs URL: ${buildId}`);
                       // For vstfs URLs, we don't have project info, so we'll try multiple projects in fetchBuildViaREST
                       projectName = null; 
                     } else {
@@ -606,10 +559,7 @@ async function fetchData() {
                     if (!projectName) {
                       // If we couldn't find project name, use a default
                       projectName = config.project;
-                      console.log(`Using default project name: ${projectName}`);
                     }
-                    
-                    console.log(`Extracted build ID: ${buildId} in project: ${projectName}`);
                     
                     // Get build details
                     try {
@@ -625,14 +575,11 @@ async function fetchData() {
                           continue;
                         }
                         
-                        console.log(`Successfully retrieved build ${buildId}: ${build.buildNumber}`);
-                        
                         // Extract the true project name from the build data if available
                         let trueProjectName = null;
                         
                         if (build.project && build.project.name) {
                           trueProjectName = build.project.name;
-                          console.log(`Found true project name from build data: ${trueProjectName}`);
                         } else {
                           // Fall back to the project name we used to find the build
                           trueProjectName = projectName || 'Unknown';
@@ -664,13 +611,11 @@ async function fetchData() {
                             originalUrl: relation.url,
                             relatedWorkItems: [workItem.id]
                           });
-                          console.log(`Added build ${buildId} to collection with URL: ${browserUrl}`);
                         } else {
                           // Update existing build to add the work item relationship
                           const existingBuild = data.builds.find(b => b.id === build.id);
                           if (!existingBuild.relatedWorkItems.includes(workItem.id)) {
                             existingBuild.relatedWorkItems.push(workItem.id);
-                            console.log(`Updated existing build ${buildId} with work item ${workItem.id}`);
                           }
                         }
                       }
@@ -686,7 +631,7 @@ async function fetchData() {
               }
             }
           } else {
-            console.log(`Work item ${workItemId} has no relations`);
+            // No relations for this work item
           }
         } catch (error) {
           console.warn(`Error processing work item ${workItemId}: ${error.message}`);
@@ -735,7 +680,6 @@ async function fetchPullRequestViaREST(prId, relationUrl, workItemId, data) {
     
     // Use REST API to get PR details without needing project/repo information
     const url = `${orgUrl}/_apis/git/pullrequests/${prId}?api-version=7.0`;
-    console.log(`Fetching PR via REST API: ${url}`);
     
     const response = await axios.get(url, {
       headers: {
@@ -746,7 +690,6 @@ async function fetchPullRequestViaREST(prId, relationUrl, workItemId, data) {
     
     if (response.status === 200 && response.data) {
       const pr = response.data;
-      console.log(`Successfully retrieved PR ${prId} using REST API: ${pr.title}`);
       
       // Extract repository information
       const repository = pr.repository || {};
@@ -755,8 +698,6 @@ async function fetchPullRequestViaREST(prId, relationUrl, workItemId, data) {
       // Get project and repository names for better URLs
       const projectName = project.name || '';
       const repoName = repository.name || '';
-      
-      console.log(`PR ${prId} belongs to project: ${projectName}, repository: ${repoName}`);
       
       // Add PR to data if not already present
       if (!data.pullRequests.some(p => p.id === pr.pullRequestId)) {
@@ -776,19 +717,16 @@ async function fetchPullRequestViaREST(prId, relationUrl, workItemId, data) {
           projectName: projectName,
           repositoryName: repoName
         });
-        console.log(`Added PR ${prId} to collection with project/repo info`);
       } else {
         // Update existing PR
         const existingPR = data.pullRequests.find(p => p.id === pr.pullRequestId);
         if (!existingPR.relatedWorkItems.includes(workItemId)) {
           existingPR.relatedWorkItems.push(workItemId);
-          console.log(`Updated existing PR ${prId} with work item ${workItemId}`);
         }
         // Also update project/repo info if not present
         if (!existingPR.projectName || !existingPR.repositoryName) {
           existingPR.projectName = projectName;
           existingPR.repositoryName = repoName;
-          console.log(`Updated PR ${prId} with project/repo information`);
         }
       }
       return true;
@@ -825,7 +763,6 @@ async function fetchBuildViaREST(buildId, projectName, relationUrl, workItemId, 
     for (const proj of projectsToTry) {
       // Use the URL format provided by the user
       url = `${orgUrl}/${proj}/_apis/build/builds/?deletedFilter=1&buildIds=${buildId}&api-version=6.0`;
-      console.log(`Fetching build via REST API: ${url}`);
       
       try {
         const response = await axios.get(url, {
@@ -838,11 +775,9 @@ async function fetchBuildViaREST(buildId, projectName, relationUrl, workItemId, 
         if (response.status === 200 && response.data && response.data.value && response.data.value.length > 0) {
           build = response.data.value[0];
           actualProjectName = proj;
-          console.log(`Successfully retrieved build ${buildId} from project ${proj} using REST API`);
           break;
         }
       } catch (err) {
-        console.log(`Failed to get build from project ${proj}: ${err.message}`);
         // Continue to try the next project
       }
     }
@@ -853,7 +788,6 @@ async function fetchBuildViaREST(buildId, projectName, relationUrl, workItemId, 
       
       if (build.project && build.project.name) {
         trueProjectName = build.project.name;
-        console.log(`Found true project name from build data: ${trueProjectName}`);
       } else {
         // Fall back to the project name we used to find the build
         trueProjectName = actualProjectName?.replace('%20', ' ') || 'Unknown';
@@ -885,13 +819,11 @@ async function fetchBuildViaREST(buildId, projectName, relationUrl, workItemId, 
           originalUrl: relationUrl,
           relatedWorkItems: [workItemId]
         });
-        console.log(`Added build ${buildId} to collection with URL: ${browserUrl}`);
       } else {
         // Update existing build to add the work item relationship
         const existingBuild = data.builds.find(b => b.id === build.id);
         if (!existingBuild.relatedWorkItems.includes(workItemId)) {
           existingBuild.relatedWorkItems.push(workItemId);
-          console.log(`Updated existing build ${buildId} with work item ${workItemId}`);
         }
       }
       return true;
