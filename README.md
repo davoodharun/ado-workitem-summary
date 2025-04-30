@@ -1,66 +1,87 @@
 # Azure DevOps Deployment Summary Generator
 
-This PowerShell script analyzes Azure DevOps work items and generates a summary of Change Request work items that are in "Ready for Implementation" state, along with their linked Pull Requests and Build Pipeline references.
+A web application to display work items, pull requests, and builds from an Azure DevOps project.
 
-## Prerequisites
+## Requirements
 
-- PowerShell 5.1 or higher
+1. One tab to display a list of work items from an ADO project called "EU-Change Governance" of custom work item type "Change Request"; Work item state should be a dynamic property but set to "Implemented" by default; fields displayed should be at least: title, work item id, # of linked items, created on date, status.
+2. Another tab to display list of pull requests that are linked to the work items found in #1. On this tab there should be filters set for the targetBranch of the pull request with default filters of main, ucd/prod, ucdweb/prod, ucdapi/prod, and master. The pull request items should have at least the following fields displayed: ID, Title, Create On Date, Created By, Status, Is Approved. Clicking on a pull request in this table should open a modal that displays the full information abou the pull request including a link to the PR on azure devops
+3. Another tab to display a list of builds that are linked to the work items found in #1
+
+Important things to note
+1. any urls that start with vsts:// are not accessible by a web browser and should be converted or replaced with browser accessible urls; this might involve extracting the id from the vsts:// url for a pull request and/or build to get more infomration about the pull request or build
+2. Remember to encode urls i.e ("EU-Change Governance" to "EU-Change%20Governance")
+3. The pull requests and builds linked to the work items in the EU-Change Governance project usually do not beloing to that project and live within another project/repository
+
+## Setup and Usage
+
+### Prerequisites
+
+- Node.js (v14 or later)
 - Azure DevOps Personal Access Token (PAT) with appropriate permissions
-- Azure DevOps organization URL
 
-## Usage
+### Installation
 
-Run the script with the required parameters:
-
-```powershell
-.\Get-DeploymentSummary.ps1 -OrganizationUrl "https://dev.azure.com/your-organization" -PersonalAccessToken "your-personal-access-token"
+1. Clone the repository
+```
+git clone <repository-url>
+cd deployment-summary
 ```
 
-Optional parameters:
-- `-ProjectName`: The name of the Azure DevOps project (default: "EU-Change Governance")
-- `-Debug`: Switch to enable debug output, showing URL conversion details
-
-Example with all parameters:
-```powershell
-.\Get-DeploymentSummary.ps1 -OrganizationUrl "https://dev.azure.com/your-organization" -PersonalAccessToken "your-personal-access-token" -ProjectName "EU-Change Governance" -Debug
+2. Install dependencies
+```
+npm install
 ```
 
-## What the Script Does
+### Configuration
 
-The script will:
-1. Connect to Azure DevOps using your credentials
-2. Find all Change Request work items in "Ready for Implementation" state
-3. For each work item, collect linked Pull Requests and Build Pipeline references
-4. Convert the internal vstfs:// URLs to browser-friendly URLs that can be opened directly
-5. Retrieve detailed information about each Pull Request and Build using the Azure DevOps REST API
-6. Generate a JSON summary of the findings
+1. Open the `scripts/fetchData.js` file and update the configuration:
+   - Set your Azure DevOps organization name
+   - If needed, adjust the project name, work item type, etc.
 
-## Output
+2. Set your Azure DevOps Personal Access Token as an environment variable:
+   - On Windows: `set ADO_PAT=your-personal-access-token`
+   - On macOS/Linux: `export ADO_PAT=your-personal-access-token`
 
-The script outputs a JSON summary containing:
-- Work item ID
-- Work item title
-- Work item state
-- List of linked items with:
-  - Browser-friendly URLs
-  - Item type (Pull Request, Build, Branch Reference, or Commit)
-  - Title
-  - Detailed information (for Pull Requests and Builds):
-    - Pull Requests: title, status, source branch, target branch, creator, creation date
-    - Builds: build number, status, result, start time, finish time, requester
+### Fetching Data
 
-## Notes
+Run the data fetching script to generate the JSON file:
+```
+npm run fetch-data
+```
 
-- The script specifically looks for Pull Request references between:
-  - stage to main
-  - ucdstage to ucdprod
-  - ucdweb/stage to ucdweb/prod
-- Build pipeline references are also included in the summary
-- All URLs in the output are converted to browser-friendly format that can be opened directly in a web browser
-- The script uses the Azure DevOps REST API to retrieve detailed information about Pull Requests and Builds
-- If you're still seeing vstfs:// URLs in the output, run the script with the -Debug parameter to see detailed URL conversion information
+This will:
+1. Connect to Azure DevOps using your PAT
+2. Query work items from the specified project
+3. Get associated pull requests and builds
+4. Save the data to `public/data/ado-data.json`
 
-## Security Considerations
+### Running the Application
 
-- The Personal Access Token is passed as a parameter and is not stored in the script
-- Consider using Azure Key Vault or other secure methods to manage your PAT in production environments 
+Start the development server:
+```
+npm run dev
+```
+
+The application will be available at http://localhost:3000
+
+### Building for Production
+
+To build for production:
+```
+npm run build
+npm start
+```
+
+## Features
+
+- **Work Items Tab**: Displays change request work items with filterable status
+- **Pull Requests Tab**: Shows linked pull requests with detailed information in a modal
+- **Builds Tab**: Lists all build information connected to the work items
+
+## Structure
+
+- `scripts/fetchData.js` - Script to fetch data from Azure DevOps
+- `public/data/ado-data.json` - Generated data file
+- `pages/index.js` - Main application page with tabs
+- `components/` - React components for each tab
