@@ -31,17 +31,6 @@ A web application to display work items, pull requests, and builds from an Azure
   - Sortable tables with direction indicators
   - Responsive design
 
-## Requirements
-
-1. One tab to display a list of work items from an ADO project called "EU-Change Governance" of custom work item type "Change Request"; Work item state should be a dynamic property but set to "Implemented" by default; fields displayed should be at least: title, work item id, # of linked items, created on date, status.
-2. Another tab to display list of pull requests that are linked to the work items found in #1. On this tab there should be filters set for the targetBranch of the pull request with default filters of main, ucd/prod, ucdweb/prod, ucdapi/prod, and master. The pull request items should have at least the following fields displayed: ID, Title, Create On Date, Created By, Status, Is Approved. Clicking on a pull request in this table should open a modal that displays the full information about the pull request including a link to the PR on azure devops
-3. Another tab to display a list of builds that are linked to the work items found in #1
-
-Important things to note
-1. any urls that start with vsts:// are not accessible by a web browser and should be converted or replaced with browser accessible urls; this might involve extracting the id from the vsts:// url for a pull request and/or build to get more infomration about the pull request or build
-2. Remember to encode urls i.e ("EU-Change Governance" to "EU-Change%20Governance")
-3. The pull requests and builds linked to the work items in the EU-Change Governance project usually do not beloing to that project and live within another project/repository
-
 ## Setup and Usage
 
 ### Prerequisites
@@ -85,13 +74,13 @@ npm install @chakra-ui/icons
 Run the data fetching script to generate the JSON file:
 
 ```
-node scripts/fetchData.js
+npm run fetch-data
 ```
 
 Or with custom parameters:
 
 ```
-node scripts/fetchData.js --pat YOUR_PAT --org YOUR_ORG --project "YOUR PROJECT" --max 100
+npm run fetch-data -- --pat YOUR_PAT --org YOUR_ORG --project "YOUR PROJECT" --max 100
 ```
 
 Available parameters:
